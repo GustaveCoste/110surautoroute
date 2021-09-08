@@ -30,6 +30,5 @@ class OpenRouteServiceRouter(Router):
     def get_route(self, start_lat, start_lon, end_lat, end_lon):
         response = requests.post(ors_api_url,
                                  headers=self.ors_request_header,
-                                 json={"coordinates": ((start_lon, start_lat), (end_lon, end_lat)),
-                                       "extra_info": ["waycategory"]})
+                                 json={"coordinates": ((start_lon, start_lat), (end_lon, end_lat))})
         return json.loads(response.content.decode('utf-8'))['routes']

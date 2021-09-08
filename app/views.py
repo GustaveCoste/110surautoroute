@@ -1,11 +1,12 @@
 from flask import Flask, request
 
+import polyline
+
 from .utils import GoogleMapsAPIRouter, OpenRouteServiceRouter
 
 app = Flask(__name__)
 
-# router = OpenRouteServiceRouter()
-router = GoogleMapsAPIRouter()
+router = OpenRouteServiceRouter()
 
 
 @app.route('/')
@@ -27,5 +28,21 @@ def route():
                              start_lon=start_lon,
                              end_lat=end_lat,
                              end_lon=end_lon)
+
+    total_duration = route[0]['summary']['duration']
+    total_distance = route[0]['summary']['distance']
+    waypoints = polyline.decode(route[0]['geometry'], 5)
+    segments = route[0]['segments'][0]['steps']
+
+    # Filtering segments on highways (> 90km/h)
+    highway_segments = [segment for segment in segments
+                        if segment['duration']
+                        and (3.6 * segment['distance'] / segment['duration'] >= 90)]
+
+    for highway_segment in highway_segments:
+        segment_distance = highway_segment['distance']
+        segment_duration = highway_segment['duration']
+        segment_speed = 3.6 * segment_distance / segment_duration
+        segment_waypoints = waypoints[highway_segment['way_points'][0]:highway_segment['way_points'][1]]
 
     return str(route)
