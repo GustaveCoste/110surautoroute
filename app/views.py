@@ -1,10 +1,12 @@
 from flask import Flask, request
-
+from geoalchemy2 import func
 import polyline
 
-from .utils import GoogleMapsAPIRouter, OpenRouteServiceRouter
-
 app = Flask(__name__)
+app.config.from_object('config')
+
+from .utils import GoogleMapsAPIRouter, OpenRouteServiceRouter
+from .models import Waypoint, Motorway
 
 router = OpenRouteServiceRouter()
 
@@ -43,6 +45,7 @@ def route():
         segment_distance = highway_segment['distance']
         segment_duration = highway_segment['duration']
         segment_speed = 3.6 * segment_distance / segment_duration
-        segment_waypoints = waypoints[highway_segment['way_points'][0]:highway_segment['way_points'][1]]
+        segment_waypoints = [Waypoint(coords[0], coords[1])
+                             for coords in waypoints[highway_segment['way_points'][0]:highway_segment['way_points'][1]]]
 
     return str(route)

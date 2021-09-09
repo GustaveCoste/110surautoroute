@@ -2,3 +2,6 @@ flask
 googlemaps
 requests
 polyline
+flask_sqlalchemy
+geoalchemy2
+psycopg2
