@@ -4,6 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 from geoalchemy2 import Geometry
 
 from .views import app
+from .constants import PROJECTED_CRS_SRID
 
 db = SQLAlchemy(app)
 
@@ -13,22 +14,25 @@ class Motorway(db.Model):
     osm_id = db.Column(db.Integer)
     highway_type = db.Column('highway', db.Text)
     maxspeed = db.Column(db.Integer, nullable=True)
-    geometry = db.Column(Geometry(geometry_type='LINESTRING', srid=4326))
+    length = db.Column(db.Float)
+    geometry = db.Column(Geometry(geometry_type='LINESTRING', srid=PROJECTED_CRS_SRID))
 
 
 class Waypoint(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    session_id = db.Column(db.Text)
     geometry = db.Column(Geometry(geometry_type='POINT', srid=4326))
 
-    def __init__(self, latitude: float, longitude: float):
-        self.geometry = f"POINT({latitude} {longitude})"
+    def __init__(self, latitude: float, longitude: float, session_id: str):
+        self.geometry = f"POINT({longitude} {latitude})"
+        self.session_id = session_id
 
 
 def init_db():
     db.drop_all()
     db.create_all()
 
-    with app.open_resource('static/motorways.sql') as file:
+    with app.open_resource('static/motorway.sql') as file:
         db.engine.execute(file.read().decode('utf8'))
 
     lg.warning('Database initialized!')
