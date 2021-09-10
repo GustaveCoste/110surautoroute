@@ -64,7 +64,7 @@ def route():
         # TODO: make sure that no motoway element from the other side of the motorway is selected
 
         # Getting every motorway element close to a route waypoint
-        query = db.session.query(Motorway.maxspeed, Motorway.length) \
+        query = Motorway.query \
             .join(Waypoint,
                   Motorway.geometry.ST_Intersects(
                       func.ST_Buffer(
@@ -72,11 +72,11 @@ def route():
                                             PROJECTED_CRS_SRID),
                           WAYPOINT_MOTORWAY_DISTANCE_THRESHOLD,
                           10)
-                  )
-                  ).filter((Motorway.highway_type == 'motorway')
-                           & (Waypoint.session_id == session_id))
+                  )) \
+            .filter((Motorway.highway_type == 'motorway')
+                    & (Waypoint.session_id == session_id)) \
+            .group_by(Motorway)
 
-        # TODO: Wrong result
         distance_130kmh = sum([x.length for x in query if x.maxspeed == '130'])
         distance_110kmh = sum([x.length for x in query if x.maxspeed == '110'])
 
