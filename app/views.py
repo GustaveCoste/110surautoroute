@@ -5,9 +5,10 @@ import polyline
 app = Flask(__name__)
 app.config.from_object('config')
 
-from .utils import OpenRouteServiceRouter
-from .models import Waypoint, Motorway, db
-from .constants import PROJECTED_CRS_SRID, WAYPOINT_MOTORWAY_DISTANCE_THRESHOLD
+from app.utils import OpenRouteServiceRouter
+from app.models import Waypoint, Motorway, db
+from app.constants import PROJECTED_CRS_SRID, WAYPOINT_MOTORWAY_DISTANCE_THRESHOLD, DEFAULT_NON_MOTORWAY_CONSUMPTION, \
+    DEFAULT_MOTORWAY_110KMH_CONSUMPTION, DEFAULT_MOTORWAY_130KMH_CONSUMPTION
 
 router = OpenRouteServiceRouter()
 
@@ -40,8 +41,15 @@ def route():
                          if segment['duration']
                          and (3.6 * segment['distance'] / segment['duration'] >= 90)]
 
-    db.session.begin()
+    # Getting duration and distance of the non-motorway part of the route
+    non_motorway_segments = [x for x in segments if x not in motorway_segments]
+    non_motorway_duration = sum([x['duration'] for x in non_motorway_segments])
+    non_motorway_distance = sum([x['distance'] for x in non_motorway_segments])
+
     # Getting the motorway elements in the database corresponding to this segment
+    distance_130kmh = distance_110kmh = 0
+
+    db.session.begin()
     for motorway_segment in motorway_segments:
         segment_distance = motorway_segment['distance']
         segment_duration = motorway_segment['duration']
@@ -85,10 +93,27 @@ def route():
             .filter((Motorway.highway_type == 'motorway')) \
             .group_by(Motorway)
 
-        distance_130kmh = sum([x.length for x in query if x.maxspeed == '130'])
-        distance_110kmh = sum([x.length for x in query if x.maxspeed == '110'])
+        distance_130kmh += sum([x.length for x in query if x.maxspeed == '130'])
+        distance_110kmh += sum([x.length for x in query if x.maxspeed == '110'])
 
     # Removing waypoints from the database
     db.session.rollback()
+
+    # Calculating time added if the 130km/h portions are made at 110km/h in hours
+    travel_time_added = ((distance_130kmh / 1000) / 110) - ((distance_130kmh / 1000) / 130)
+    travel_time_130 = (non_motorway_duration / 3600) \
+                      + ((distance_130kmh / 1000) / 130) \
+                      + ((distance_110kmh / 1000) / 110)
+    travel_time_110 = travel_time_130 + travel_time_added
+
+    # Calculating consumption difference
+    non_motorway_consumption = request.args.get('non_motorway_consumption', DEFAULT_NON_MOTORWAY_CONSUMPTION)
+    motorway_110kmh_consumption = request.args.get('motorway_110kmh_consumption', DEFAULT_MOTORWAY_110KMH_CONSUMPTION)
+    motorway_130kmh_consumption = request.args.get('motorway_130kmh_consumption', DEFAULT_MOTORWAY_130KMH_CONSUMPTION)
+
+    non_motorway_consumed_fuel = non_motorway_consumption * (non_motorway_distance / 100000)
+    motorway_consumed_fuel_130 = (motorway_110kmh_consumption * (distance_110kmh / 100000)) \
+                                 + (motorway_130kmh_consumption * (distance_130kmh / 100000))
+    motorway_consumed_fuel_110 = motorway_110kmh_consumption * ((distance_110kmh + distance_130kmh) / 100000)
 
     return str(route)
