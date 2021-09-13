@@ -25,8 +25,6 @@ def route():
     start_lon, start_lat = request.args.get('start_lon'), request.args.get('start_lat')
     end_lon, end_lat = request.args.get('end_lon'), request.args.get('end_lat')
 
-    # TODO: tester coords
-
     route = router.get_route(start_lat=start_lat,
                              start_lon=start_lon,
                              end_lat=end_lat,
