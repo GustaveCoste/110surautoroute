@@ -57,7 +57,22 @@ def route():
         # Adding waypoints to the database
         db.session.add_all(segment_waypoints)
 
-        # TODO: make sure that no motoway element from the other side of the motorway is selected
+        # Removing waypoints that are on a motorway link (to avoid selection of a wrong motorway element if a waypoint
+        # is on a motorway link over an undesired motorway element)
+        ids_to_delete = Waypoint.query \
+            .join(Motorway,
+                  Motorway.geometry.ST_Intersects(
+                      func.ST_Buffer(
+                          func.ST_Transform(Waypoint.geometry,
+                                            PROJECTED_CRS_SRID),
+                          WAYPOINT_MOTORWAY_DISTANCE_THRESHOLD,
+                          10)
+                  )) \
+            .filter((Motorway.highway_type == 'motorway_link')) \
+            .group_by(Waypoint) \
+            .with_entities(Waypoint.id)
+
+        Waypoint.query.filter(Waypoint.id.in_(ids_to_delete)).delete(synchronize_session=False)
 
         # Getting every motorway element close to a route waypoint
         query = Motorway.query \
