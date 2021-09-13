@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<form action="" method="get">
+    <p>
+        {{ form.origin.label }}<br>
+        {{ form.origin(size=32) }}
+    </p>
+    <p>
+        {{ form.destination.label }}<br>
+        {{ form.destination(size=32) }}
+    </p>
+    <p>
+        {{ form.non_motorway_consumption.label }}<br>
+        {{ form.non_motorway_consumption(step=0.1) }}
+    </p>
+    <p>
+        {{ form.motorway_consumption_130.label }}<br>
+        {{ form.motorway_consumption_130(step=0.1) }}
+    </p>
+    <p>
+        {{ form.motorway_consumption_110.label }}<br>
+        {{ form.motorway_consumption_110(step=0.1) }}
+    </p>
+    {{ form.hidden_tag() }}
+    <p>{{ form.submit() }}</p>
+</form>
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+<ul>
+    {% for message in messages %}
+    <li>{{ message }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+{% endwith %}
+
+{% endblock %}
