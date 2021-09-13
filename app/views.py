@@ -1,12 +1,13 @@
 from datetime import timedelta
 
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, url_for, redirect
 from geoalchemy2 import func
 import polyline
 
 app = Flask(__name__)
 app.config.from_object('config')
 
+from app.forms import RouteForm
 from app.utils import OpenRouteServiceRouter
 from app.models import Waypoint, Motorway, db
 from app.constants import PROJECTED_CRS_SRID, WAYPOINT_MOTORWAY_DISTANCE_THRESHOLD, DEFAULT_NON_MOTORWAY_CONSUMPTION, \
@@ -16,14 +17,19 @@ router = OpenRouteServiceRouter()
 
 
 @app.route('/')
+@app.route('/index/')
 def index():
-    return 'coucou'
+    form = RouteForm(request.args)
+
+    if form.validate():
+        return redirect(url_for('route'))
+    return render_template('index.html', form=form)
 
 
 # test url
 # http://127.0.0.1:5000/route?start_lat=43.876972&start_lon=5.412461&end_lat=44.555107&end_lon=6.068406
 
-@app.route('/route')
+@app.route('/route/')
 def route():
     start_lon, start_lat = request.args.get('start_lon'), request.args.get('start_lat')
     end_lon, end_lat = request.args.get('end_lon'), request.args.get('end_lat')
