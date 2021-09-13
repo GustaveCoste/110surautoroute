@@ -20,12 +20,10 @@ class Motorway(db.Model):
 
 class Waypoint(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    session_id = db.Column(db.Text)
     geometry = db.Column(Geometry(geometry_type='POINT', srid=4326))
 
-    def __init__(self, latitude: float, longitude: float, session_id: str):
+    def __init__(self, latitude: float, longitude: float):
         self.geometry = f"POINT({longitude} {latitude})"
-        self.session_id = session_id
 
 
 def init_db():

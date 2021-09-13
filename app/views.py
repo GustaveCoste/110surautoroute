@@ -1,5 +1,3 @@
-import uuid
-
 from flask import Flask, request
 from geoalchemy2 import func
 import polyline
@@ -24,9 +22,6 @@ def index():
 
 @app.route('/route')
 def route():
-    # Creating a session id used to distinguish database objects of each concurrent users
-    session_id = str(uuid.uuid4())
-
     start_lon, start_lat = request.args.get('start_lon'), request.args.get('start_lat')
     end_lon, end_lat = request.args.get('end_lon'), request.args.get('end_lat')
 
@@ -47,19 +42,20 @@ def route():
                          if segment['duration']
                          and (3.6 * segment['distance'] / segment['duration'] >= 90)]
 
+    db.session.begin()
     # Getting the motorway elements in the database corresponding to this segment
     for motorway_segment in motorway_segments:
         segment_distance = motorway_segment['distance']
         segment_duration = motorway_segment['duration']
         segment_speed = 3.6 * segment_distance / segment_duration
 
-        segment_waypoints = [Waypoint(latitude=coords[0], longitude=coords[1], session_id=session_id)
+        segment_waypoints = [Waypoint(latitude=coords[0], longitude=coords[1])
                              for coords
-                             in waypoints[motorway_segment['way_points'][0]:motorway_segment['way_points'][1]]]
+                             in waypoints[motorway_segment['way_points'][0]
+                                          :motorway_segment['way_points'][1]]]
 
         # Adding waypoints to the database
         db.session.add_all(segment_waypoints)
-        db.session.commit()
 
         # TODO: make sure that no motoway element from the other side of the motorway is selected
 
@@ -73,15 +69,13 @@ def route():
                           WAYPOINT_MOTORWAY_DISTANCE_THRESHOLD,
                           10)
                   )) \
-            .filter((Motorway.highway_type == 'motorway')
-                    & (Waypoint.session_id == session_id)) \
+            .filter((Motorway.highway_type == 'motorway')) \
             .group_by(Motorway)
 
         distance_130kmh = sum([x.length for x in query if x.maxspeed == '130'])
         distance_110kmh = sum([x.length for x in query if x.maxspeed == '110'])
 
     # Removing waypoints from the database
-    Waypoint.query.filter(Waypoint.session_id == session_id).delete()
-    db.session.commit()
+    db.session.rollback()
 
     return str(route)
