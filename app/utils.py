@@ -10,15 +10,16 @@ from config import googlemaps_api_key, ors_api_key, ors_api_url
 def check_coordinates(f):
     """ Decorator that checks coordinates given as start_lat, start_lon, end_lat, end_lon in the function arguments """
 
-    def wrapper(*args, **kw):
-        if (float(kw['start_lat']) > 90) or (float(kw['start_lat']) < -90):
+    def wrapper(*args, **kwargs):
+        if (float(kwargs['start_lat']) > 90) or (float(kwargs['start_lat']) < -90):
             raise Exception('start_lat must be in [-90, 90]')
-        if (float(kw['end_lat']) > 90) or (float(kw['end_lat']) < -90):
+        if (float(kwargs['end_lat']) > 90) or (float(kwargs['end_lat']) < -90):
             raise Exception('end_lat must be in [-90, 90]')
-        if (float(kw['start_lon']) > 180) or (float(kw['start_lon']) < -180):
+        if (float(kwargs['start_lon']) > 180) or (float(kwargs['start_lon']) < -180):
             raise Exception('start_lon must be in [-180, 180]')
-        if (float(kw['end_lon']) > 180) or (float(kw['end_lon']) < -180):
+        if (float(kwargs['end_lon']) > 180) or (float(kwargs['end_lon']) < -180):
             raise Exception('end_lon must be in [-180, 180]')
+        return f(*args, **kwargs)
 
     return wrapper
 
