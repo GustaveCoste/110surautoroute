@@ -1,4 +1,6 @@
-from flask import Flask, request
+from datetime import timedelta
+
+from flask import Flask, request, render_template
 from geoalchemy2 import func
 import polyline
 
@@ -31,7 +33,7 @@ def route():
                              end_lat=end_lat,
                              end_lon=end_lon)
 
-    total_duration = route[0]['summary']['duration']
+    total_duration = timedelta(seconds=route[0]['summary']['duration'])
     total_distance = route[0]['summary']['distance']
     waypoints = polyline.decode(route[0]['geometry'], 5)
     segments = route[0]['segments'][0]['steps']
@@ -43,7 +45,7 @@ def route():
 
     # Getting duration and distance of the non-motorway part of the route
     non_motorway_segments = [x for x in segments if x not in motorway_segments]
-    non_motorway_duration = sum([x['duration'] for x in non_motorway_segments])
+    non_motorway_travel_time = timedelta(seconds=sum([x['duration'] for x in non_motorway_segments]))
     non_motorway_distance = sum([x['distance'] for x in non_motorway_segments])
 
     # Getting the motorway elements in the database corresponding to this segment
@@ -99,12 +101,9 @@ def route():
     # Removing waypoints from the database
     db.session.rollback()
 
-    # Calculating time added if the 130km/h portions are made at 110km/h in hours
-    travel_time_added = ((distance_130kmh / 1000) / 110) - ((distance_130kmh / 1000) / 130)
-    travel_time_130 = (non_motorway_duration / 3600) \
-                      + ((distance_130kmh / 1000) / 130) \
-                      + ((distance_110kmh / 1000) / 110)
-    travel_time_110 = travel_time_130 + travel_time_added
+    # Calculating travelled time at different speeds
+    motorway_travel_time_110 = timedelta(hours=(((distance_130kmh + distance_110kmh) / 1000) / 110))
+    motorway_travel_time_130 = timedelta(hours=((distance_130kmh / 1000) / 130) + ((distance_110kmh / 1000) / 110))
 
     # Calculating consumption difference
     non_motorway_consumption = request.args.get('non_motorway_consumption', DEFAULT_NON_MOTORWAY_CONSUMPTION)
@@ -116,4 +115,11 @@ def route():
                                  + (motorway_130kmh_consumption * (distance_130kmh / 100000))
     motorway_consumed_fuel_110 = motorway_110kmh_consumption * ((distance_110kmh + distance_130kmh) / 100000)
 
-    return str(route)
+    return render_template('result.html',
+                           motorway_travel_time_110=motorway_travel_time_110,
+                           motorway_travel_time_130=motorway_travel_time_130,
+                           non_motorway_travel_time=non_motorway_travel_time,
+                           non_motorway_consumed_fuel=non_motorway_consumed_fuel,
+                           motorway_consumed_fuel_130=motorway_consumed_fuel_130,
+                           motorway_consumed_fuel_110=motorway_consumed_fuel_110,
+                           )

@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<style type="text/css">
+.tg  {border-collapse:collapse;border-spacing:0;}
+.tg td{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;
+  overflow:hidden;padding:10px 5px;word-break:normal;}
+.tg th{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;
+  font-weight:normal;overflow:hidden;padding:10px 5px;word-break:normal;}
+.tg .tg-0lax{text-align:left;vertical-align:top}
+
+</style>
+<table class="tg">
+    <thead>
+    <tr>
+        <th class="tg-0lax"></th>
+        <th class="tg-0lax">Limité à 110 km/h</th>
+        <th class="tg-0lax">Limité à 130 km/h</th>
+        <th class="tg-0lax">Différence</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td class="tg-0lax">Temps de trajet hors autoroute</td>
+        <td class="tg-0lax" colspan="3">{{ non_motorway_travel_time | strftimedelta }}</td>
+    </tr>
+    <tr>
+        <td class="tg-0lax">Temps de trajet sur autoroute</td>
+        <td class="tg-0lax">{{ motorway_travel_time_110  | strftimedelta }}</td>
+        <td class="tg-0lax">{{ motorway_travel_time_130  | strftimedelta }}</td>
+        <td class="tg-0lax" rowspan="2">{{ (motorway_travel_time_110 - motorway_travel_time_130)  | strftimedelta }}</td>
+    </tr>
+    <tr>
+        <td class="tg-0lax">Temps de trajet total</td>
+        <td class="tg-0lax">{{ (non_motorway_travel_time + motorway_travel_time_110)  | strftimedelta }}</td>
+        <td class="tg-0lax">{{ (non_motorway_travel_time + motorway_travel_time_130)  | strftimedelta }}</td>
+    </tr>
+    <tr>
+        <td class="tg-0lax">Consommation hors autoroute</td>
+        <td class="tg-0lax" colspan="3">{{ "{:.1f}".format(non_motorway_consumed_fuel) }} l</td>
+    </tr>
+    <tr>
+        <td class="tg-0lax">Consommation sur autoroute</td>
+        <td class="tg-0lax">{{ "{:.1f}".format(motorway_consumed_fuel_110) }} l</td>
+        <td class="tg-0lax">{{ "{:.1f}".format(motorway_consumed_fuel_130) }} l</td>
+        <td class="tg-0lax" rowspan="2">{{ "{:.1f}".format(motorway_consumed_fuel_130 - motorway_consumed_fuel_110) }} l</td>
+    </tr>
+    <tr>
+        <td class="tg-0lax">Consommation totale</td>
+        <td class="tg-0lax">{{ "{:.1f}".format(non_motorway_consumed_fuel + motorway_consumed_fuel_110) }} l</td>
+        <td class="tg-0lax">{{ "{:.1f}".format(non_motorway_consumed_fuel + motorway_consumed_fuel_130) }} l</td>
+    </tr>
+    </tbody>
+</table>
+
+{% endblock %}
