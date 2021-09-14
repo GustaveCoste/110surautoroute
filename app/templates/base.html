@@ -17,8 +17,9 @@
     <link rel="apple-touch-icon" href="icon.png">
     <!-- Place favicon.ico in the root directory -->
 
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/normalize.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/vendor/normalize.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/vendor/bootstrap/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/vendor/leaflet/leaflet.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
 
     <meta name="theme-color" content="#fafafa">
@@ -30,6 +31,7 @@
 
 <script src="{{ url_for('static', filename='js/vendor/modernizr-3.11.2.min.js') }}"></script>
 <script src="{{ url_for('static', filename='js/vendor/bootstrap/bootstrap.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/vendor/leaflet.js') }}"></script>
 <script src="{{ url_for('static', filename='js/plugins.js') }}"></script>
 <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
