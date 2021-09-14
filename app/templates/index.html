@@ -44,7 +44,7 @@
             function consumptionCalculator() {
                 var motorway_consumption_130 = document.getElementById('motorway_consumption_130').value;
                 document.getElementById('motorway_consumption_110').value =
-                    motorway_consumption_130 * (1 - {{ consumption_reduction_factor_110_130 }});
+                    Math.round(motorway_consumption_130 * (1 - {{ consumption_reduction_factor_110_130 }}) * 10) / 10;
             }
 
         </script>
