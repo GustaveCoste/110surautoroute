@@ -2,14 +2,21 @@
 
 {% block content %}
 
+
 <form action="" method="get">
     <div class="form-group">
-        {{ form.origin.label }}<br>
-        {{ form.origin(size=32) }}
+        <p>Départ</p>
+        <div id="start_map" style="width: 300px; height: 300px;"></div>
+        {{ form.start_lon() }}
+        {{ form.start_lat() }}
     </div>
     <div class="form-group">
-        {{ form.destination.label }}<br>
-        {{ form.destination(size=32) }}
+        <p>Arrivée</p>
+        <div id="end_map" style="width: 300px; height: 300px;"></div>
+        {{ form.end_lon() }}
+        {{ form.end_lat() }}
+    </div>
+    <div class="form-group">
     </div>
     <div class="form-group">
         {{ form.vehicle_type.label }}<br>
@@ -30,8 +37,8 @@
     <div class="form-group">
         {{ form.motorway_consumption_110.label }}<br>
         {{ form.motorway_consumption_110(step=0.1) }}<br>
-        <small class="text-muted">Par défaut la consommation à 110 km/h est calculée avec une réduction de 25 % par rapport
-            à celle à 130 km/h.
+        <small class="text-muted">Par défaut la consommation à 110 km/h est calculée avec une réduction de 25 % par
+            rapport à celle à 130 km/h.
         </small>
     </div>
     <div class="form-group">
@@ -39,5 +46,25 @@
         <p>{{ form.submit() }}</p>
     </div>
 </form>
+
+<script>
+    formMap(
+        "start_map",
+        "start_lat",
+        "start_lon",
+        {{ start_lat }},
+        {{ start_lon }}
+    )
+    
+    formMap(
+        "end_map",
+        "end_lat",
+        "end_lon",
+        {{ end_lat }},
+        {{ end_lon }}
+    )
+
+
+</script>
 
 {% endblock %}

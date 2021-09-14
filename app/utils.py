@@ -4,7 +4,7 @@ import json
 import googlemaps
 import requests
 
-from config import googlemaps_api_key, ors_api_key, ors_api_url
+from config import GOOGLEMAPS_API_KEY, ORS_API_KEY, ORS_API_URL
 
 
 def check_coordinates(f):
@@ -33,7 +33,7 @@ class Router(ABC):
 # TODO: make all classes return the same object with get_route
 
 class GoogleMapsAPIRouter(Router):
-    gmaps = googlemaps.Client(key=googlemaps_api_key)
+    gmaps = googlemaps.Client(key=GOOGLEMAPS_API_KEY)
 
     @check_coordinates
     def get_route(self, start_lat, start_lon, end_lat, end_lon):
@@ -43,11 +43,11 @@ class GoogleMapsAPIRouter(Router):
 
 
 class OpenRouteServiceRouter(Router):
-    ors_request_header = {'Authorization': ors_api_key}
+    ors_request_header = {'Authorization': ORS_API_KEY}
 
     @check_coordinates
     def get_route(self, start_lat, start_lon, end_lat, end_lon):
-        response = requests.post(ors_api_url,
+        response = requests.post(ORS_API_URL,
                                  headers=self.ors_request_header,
                                  json={"coordinates": ((start_lon, start_lat), (end_lon, end_lat))})
         return json.loads(response.content.decode('utf-8'))['routes']

@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, DecimalField, SubmitField, SelectField
+from wtforms import HiddenField, DecimalField, SubmitField, SelectField, FloatField
 from wtforms.validators import DataRequired, NumberRange
 from wtforms.widgets.html5 import NumberInput
 from wtforms_html5 import AutoAttrMeta
@@ -15,10 +15,10 @@ class RouteForm(FlaskForm):
     class Meta(AutoAttrMeta):
         pass
 
-    origin = StringField('Départ',
-                         validators=[DataRequired()])
-    destination = StringField('Arrivée',
-                              validators=[DataRequired()])
+    start_lon = HiddenField('start_lon')
+    start_lat = HiddenField('start_lat')
+    end_lon = HiddenField('end_lon')
+    end_lat = HiddenField('end_lat')
     vehicle_type = SelectField('Type de véhicule',
                                default=VEHICLE_TYPES[2],
                                choices=VEHICLE_TYPES,

@@ -22,8 +22,13 @@ def index():
     form = RouteForm(request.args)
 
     if form.validate():
-        return redirect(url_for('route'))
-    return render_template('index.html', form=form)
+        return redirect(url_for('route', **request.args))
+    return render_template('index.html',
+                           form=form,
+                           start_lat=request.args.get('start_lat', 'undefined'),
+                           start_lon=request.args.get('start_lon', 'undefined'),
+                           end_lat=request.args.get('end_lat', 'undefined'),
+                           end_lon=request.args.get('end_lon', 'undefined'))
 
 
 # test url
@@ -112,9 +117,12 @@ def route():
     motorway_travel_time_130 = timedelta(hours=((distance_130kmh / 1000) / 130) + ((distance_110kmh / 1000) / 110))
 
     # Calculating consumption difference
-    non_motorway_consumption = request.args.get('non_motorway_consumption', DEFAULT_NON_MOTORWAY_CONSUMPTION)
-    motorway_110kmh_consumption = request.args.get('motorway_110kmh_consumption', DEFAULT_MOTORWAY_110KMH_CONSUMPTION)
-    motorway_130kmh_consumption = request.args.get('motorway_130kmh_consumption', DEFAULT_MOTORWAY_130KMH_CONSUMPTION)
+    non_motorway_consumption = float(request.args.get('non_motorway_consumption',
+                                                      DEFAULT_NON_MOTORWAY_CONSUMPTION))
+    motorway_110kmh_consumption = float(request.args.get('motorway_110kmh_consumption',
+                                                         DEFAULT_MOTORWAY_110KMH_CONSUMPTION))
+    motorway_130kmh_consumption = float(request.args.get('motorway_130kmh_consumption',
+                                                         DEFAULT_MOTORWAY_130KMH_CONSUMPTION))
 
     non_motorway_consumed_fuel = non_motorway_consumption * (non_motorway_distance / 100000)
     motorway_consumed_fuel_130 = (motorway_110kmh_consumption * (distance_110kmh / 100000)) \
