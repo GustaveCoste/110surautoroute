@@ -11,7 +11,7 @@ from app.forms import RouteForm
 from app.utils import OpenRouteServiceRouter
 from app.models import Waypoint, Motorway, db
 from app.constants import PROJECTED_CRS_SRID, WAYPOINT_MOTORWAY_DISTANCE_THRESHOLD, DEFAULT_NON_MOTORWAY_CONSUMPTION, \
-    DEFAULT_MOTORWAY_110KMH_CONSUMPTION, DEFAULT_MOTORWAY_130KMH_CONSUMPTION
+    DEFAULT_MOTORWAY_110KMH_CONSUMPTION, DEFAULT_MOTORWAY_130KMH_CONSUMPTION, CONSUMPTION_REDUCTION_FACTOR_110_130
 
 router = OpenRouteServiceRouter()
 
@@ -25,6 +25,7 @@ def index():
         return redirect(url_for('route', **request.args))
     return render_template('index.html',
                            form=form,
+                           consumption_reduction_factor_110_130=CONSUMPTION_REDUCTION_FACTOR_110_130,
                            start_lat=request.args.get('start_lat') or 'undefined',
                            start_lon=request.args.get('start_lon') or 'undefined',
                            end_lat=request.args.get('end_lat') or 'undefined',
