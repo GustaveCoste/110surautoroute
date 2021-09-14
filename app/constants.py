@@ -10,3 +10,6 @@ DEFAULT_MOTORWAY_110KMH_CONSUMPTION = (1 - CONSUMPTION_REDUCTION_FACTOR_110_130)
 # Consumption bounds for data validation (in l/100km)
 MINIMUM_CONSUMPTION = 1
 MAXIMUM_CONSUMPTION = 30
+
+VEHICLE_TYPES = ['Moto', 'Compacte', 'Citadine', 'Berline', 'SUV', 'Familiale']
+FUEL_TYPES = ['Diesel', 'Essence']
