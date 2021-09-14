@@ -25,10 +25,10 @@ def index():
         return redirect(url_for('route', **request.args))
     return render_template('index.html',
                            form=form,
-                           start_lat=request.args.get('start_lat', 'undefined'),
-                           start_lon=request.args.get('start_lon', 'undefined'),
-                           end_lat=request.args.get('end_lat', 'undefined'),
-                           end_lon=request.args.get('end_lon', 'undefined'))
+                           start_lat=request.args.get('start_lat') or 'undefined',
+                           start_lon=request.args.get('start_lon') or 'undefined',
+                           end_lat=request.args.get('end_lat') or 'undefined',
+                           end_lon=request.args.get('end_lon') or 'undefined')
 
 
 # test url

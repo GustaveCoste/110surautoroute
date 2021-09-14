@@ -15,10 +15,14 @@ class RouteForm(FlaskForm):
     class Meta(AutoAttrMeta):
         pass
 
-    start_lon = HiddenField('start_lon')
-    start_lat = HiddenField('start_lat')
-    end_lon = HiddenField('end_lon')
-    end_lat = HiddenField('end_lat')
+    start_lon = HiddenField('start_lon',
+                            validators=[DataRequired()])
+    start_lat = HiddenField('start_lat',
+                            validators=[DataRequired()])
+    end_lon = HiddenField('end_lon',
+                          validators=[DataRequired()])
+    end_lat = HiddenField('end_lat',
+                          validators=[DataRequired()])
     vehicle_type = SelectField('Type de véhicule',
                                default=VEHICLE_TYPES[2],
                                choices=VEHICLE_TYPES,
