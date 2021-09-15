@@ -5,6 +5,7 @@ import googlemaps
 import requests
 
 from config import GOOGLEMAPS_API_KEY, ORS_API_KEY, ORS_API_URL
+from app.views import app
 
 
 def check_coordinates(f):
@@ -49,5 +50,11 @@ class OpenRouteServiceRouter(Router):
     def get_route(self, start_lat, start_lon, end_lat, end_lon):
         response = requests.post(ORS_API_URL,
                                  headers=self.ors_request_header,
-                                 json={"coordinates": ((start_lon, start_lat), (end_lon, end_lat))})
+                                 json={"coordinates": ((start_lon, start_lat), (end_lon, end_lat)),
+                                       "radiuses": -1})
+
+        if response.status_code == 200:
+            app.logger.info('Route request successful.')
+        else:
+            app.logger.warning(response.content)
         return json.loads(response.content.decode('utf-8'))['routes']

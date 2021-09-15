@@ -1,5 +1,4 @@
 from datetime import timedelta
-import json
 
 from flask import Flask, request, render_template, url_for, redirect
 from geoalchemy2 import func
@@ -65,56 +64,55 @@ def route():
     distance_130kmh = distance_110kmh = 0
 
     db.session.begin()
-    motorways_geometries = '[]'
+    motorway_waypoints = []
     for motorway_segment in motorway_segments:
-        segment_distance = motorway_segment['distance']
-        segment_duration = motorway_segment['duration']
-        segment_speed = 3.6 * segment_distance / segment_duration
+        motorway_waypoints += [Waypoint(latitude=coords[0], longitude=coords[1])
+                               for coords
+                               in waypoints[motorway_segment['way_points'][0]
+                                            :motorway_segment['way_points'][1]]]
 
-        segment_waypoints = [Waypoint(latitude=coords[0], longitude=coords[1])
-                             for coords
-                             in waypoints[motorway_segment['way_points'][0]
-                                          :motorway_segment['way_points'][1]]]
+    # Adding waypoints to the database
+    db.session.add_all(motorway_waypoints)
+    app.logger.info(f"{len(motorway_waypoints)} motorway waypoints identified.")
 
-        # Adding waypoints to the database
-        db.session.add_all(segment_waypoints)
+    # Removing waypoints that are on a motorway link (to avoid selection of a wrong motorway element if a waypoint
+    # is on a motorway link over an undesired motorway element)
+    ids_to_delete = Waypoint.query \
+        .join(Motorway,
+              Motorway.geometry.ST_Intersects(
+                  func.ST_Buffer(
+                      func.ST_Transform(Waypoint.geometry,
+                                        PROJECTED_CRS_SRID),
+                      WAYPOINT_MOTORWAY_DISTANCE_THRESHOLD,
+                      10)
+              )) \
+        .filter((Motorway.highway_type == 'motorway_link')) \
+        .group_by(Waypoint) \
+        .with_entities(Waypoint.id)
 
-        # Removing waypoints that are on a motorway link (to avoid selection of a wrong motorway element if a waypoint
-        # is on a motorway link over an undesired motorway element)
-        ids_to_delete = Waypoint.query \
-            .join(Motorway,
-                  Motorway.geometry.ST_Intersects(
-                      func.ST_Buffer(
-                          func.ST_Transform(Waypoint.geometry,
-                                            PROJECTED_CRS_SRID),
-                          WAYPOINT_MOTORWAY_DISTANCE_THRESHOLD,
-                          10)
-                  )) \
-            .filter((Motorway.highway_type == 'motorway_link')) \
-            .group_by(Waypoint) \
-            .with_entities(Waypoint.id)
+    nb_deleted_waypoints = Waypoint.query.filter(Waypoint.id.in_(ids_to_delete)).delete(synchronize_session=False)
+    app.logger.info(f"{nb_deleted_waypoints} deleted waypoints.")
 
-        Waypoint.query.filter(Waypoint.id.in_(ids_to_delete)).delete(synchronize_session=False)
+    # Getting every motorway element close to a route waypoint
+    motorway_query = Motorway.query \
+        .with_entities(Motorway.length,
+                       Motorway.maxspeed,
+                       func.ST_AsGeoJSON(func.ST_Transform(Motorway.geometry, 4326)).label('geojson_geometry')) \
+        .join(Waypoint,
+              Motorway.geometry.ST_Intersects(
+                  func.ST_Buffer(
+                      func.ST_Transform(Waypoint.geometry,
+                                        PROJECTED_CRS_SRID),
+                      WAYPOINT_MOTORWAY_DISTANCE_THRESHOLD,
+                      10)
+              )) \
+        .filter((Motorway.highway_type == 'motorway')) \
+        .group_by(Motorway)
 
-        # Getting every motorway element close to a route waypoint
-        motorway_query = Motorway.query \
-            .with_entities(Motorway.length,
-                           Motorway.maxspeed,
-                           func.ST_AsGeoJSON(func.ST_Transform(Motorway.geometry, 4326)).label('geojson_geometry'))\
-            .join(Waypoint,
-                  Motorway.geometry.ST_Intersects(
-                      func.ST_Buffer(
-                          func.ST_Transform(Waypoint.geometry,
-                                            PROJECTED_CRS_SRID),
-                          WAYPOINT_MOTORWAY_DISTANCE_THRESHOLD,
-                          10)
-                  )) \
-            .filter((Motorway.highway_type == 'motorway')) \
-            .group_by(Motorway)
-
-        distance_130kmh += sum([x.length for x in motorway_query if x.maxspeed == '130'])
-        distance_110kmh += sum([x.length for x in motorway_query if x.maxspeed == '110'])
-        motorways_geometries = [x.geojson_geometry for x in motorway_query]
+    distance_130kmh += sum([x.length for x in motorway_query if x.maxspeed == '130'])
+    distance_110kmh += sum([x.length for x in motorway_query if x.maxspeed == '110'])
+    motorways_geometries = [x.geojson_geometry for x in motorway_query]
+    app.logger.info(f"{motorway_query.count()} motorway elements identified.")
 
     # Removing waypoints from the database
     db.session.rollback()
