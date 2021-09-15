@@ -261,3 +261,5 @@ textarea {
   }
 }
 
+img.start_marker { filter: hue-rotate(-50deg); }
+img.end_marker { filter: hue-rotate(130deg); }

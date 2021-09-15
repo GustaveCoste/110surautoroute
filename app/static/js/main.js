@@ -1,4 +1,4 @@
-function formMap(map_id, form_field_lat_id, form_field_lon_id, lat, lon) {
+function formMap(map_id, form_field_lat_id, form_field_lon_id, lat, lon, marker_style) {
     // Initializing the map
 	var map = L.map(map_id).setView([47.15, 2.25], 5);
 
@@ -32,6 +32,8 @@ function formMap(map_id, form_field_lat_id, form_field_lon_id, lat, lon) {
     function setMarker(lat, lon){
         markers.clearLayers();
         var marker = L.marker([lat, lon]).addTo(map);
+        if (marker_style == 'start'){marker._icon.classList.add("start_marker")}
+        else if (marker_style == 'end'){marker._icon.classList.add("end_marker")};
         markers.addLayer(marker);
 
         document.getElementById(form_field_lat_id).value = lat;
