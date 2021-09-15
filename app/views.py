@@ -1,4 +1,5 @@
 from datetime import timedelta
+import json
 
 from flask import Flask, request, render_template, url_for, redirect
 from geoalchemy2 import func
@@ -64,6 +65,7 @@ def route():
     distance_130kmh = distance_110kmh = 0
 
     db.session.begin()
+    motorways_geometries = '[]'
     for motorway_segment in motorway_segments:
         segment_distance = motorway_segment['distance']
         segment_duration = motorway_segment['duration']
@@ -95,7 +97,10 @@ def route():
         Waypoint.query.filter(Waypoint.id.in_(ids_to_delete)).delete(synchronize_session=False)
 
         # Getting every motorway element close to a route waypoint
-        query = Motorway.query \
+        motorway_query = Motorway.query \
+            .with_entities(Motorway.length,
+                           Motorway.maxspeed,
+                           func.ST_AsGeoJSON(func.ST_Transform(Motorway.geometry, 4326)).label('geojson_geometry'))\
             .join(Waypoint,
                   Motorway.geometry.ST_Intersects(
                       func.ST_Buffer(
@@ -107,8 +112,9 @@ def route():
             .filter((Motorway.highway_type == 'motorway')) \
             .group_by(Motorway)
 
-        distance_130kmh += sum([x.length for x in query if x.maxspeed == '130'])
-        distance_110kmh += sum([x.length for x in query if x.maxspeed == '110'])
+        distance_130kmh += sum([x.length for x in motorway_query if x.maxspeed == '130'])
+        distance_110kmh += sum([x.length for x in motorway_query if x.maxspeed == '110'])
+        motorways_geometries = [x.geojson_geometry for x in motorway_query]
 
     # Removing waypoints from the database
     db.session.rollback()
@@ -137,4 +143,6 @@ def route():
                            non_motorway_consumed_fuel=non_motorway_consumed_fuel,
                            motorway_consumed_fuel_130=motorway_consumed_fuel_130,
                            motorway_consumed_fuel_110=motorway_consumed_fuel_110,
+                           route_geometry=route[0]['geometry'].replace('\\', '\\\\'),
+                           motorways_geometries=motorways_geometries
                            )

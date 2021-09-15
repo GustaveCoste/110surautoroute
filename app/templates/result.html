@@ -2,6 +2,13 @@
 
 {% block content %}
 
+<div id="result_map" style="width: 600px; height: 400px;"></div>
+<script>
+    route_geometry = '{{ route_geometry }}'
+    motorways_geometries = {{ motorways_geometries | tojson | safe }}
+    resultMap(result_map, route_geometry, motorways_geometries)
+</script>
+
 <table>
     <thead>
     <tr>
