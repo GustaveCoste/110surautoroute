@@ -32,9 +32,6 @@ def index():
                            end_lon=request.args.get('end_lon') or 'undefined')
 
 
-# test url
-# http://127.0.0.1:5000/route?start_lat=43.876972&start_lon=5.412461&end_lat=44.555107&end_lon=6.068406
-
 @app.route('/route/')
 def route():
     start_lon, start_lat = request.args.get('start_lon'), request.args.get('start_lat')

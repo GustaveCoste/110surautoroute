@@ -1,4 +1,13 @@
-function formMap(map_id, form_field_lat_id, form_field_lon_id, lat, lon, marker_style) {
+function enableSubmitButton(button_id){
+    if ((document.getElementById('start_lat').value !== '')
+        && (document.getElementById('start_lon').value !== '')
+        && (document.getElementById('end_lat').value !== '')
+        && (document.getElementById('end_lon').value !== '')) {
+        document.getElementById(button_id).disabled=false;
+    }
+}
+
+function formMap(map_id, form_field_lat_id, form_field_lon_id, marker_style) {
     // Initializing the map
 	var map = L.map(map_id).setView([47.15, 2.25], 5);
 
@@ -40,11 +49,13 @@ function formMap(map_id, form_field_lat_id, form_field_lon_id, lat, lon, marker_
         document.getElementById(form_field_lon_id).value = lon;
     }
 
-
     // If coordinates are given, add a marker and update the form field
-    if ((lat !== undefined) && ((lon !== undefined))) {
-        setMarker(lat, lon)
-        map.setView([lat, lon], 10)
+    if ((document.getElementById(form_field_lat_id).value !== '')
+                && (document.getElementById(form_field_lon_id).value !== '')) {
+        setMarker(document.getElementById(form_field_lat_id).value,
+                    document.getElementById(form_field_lon_id).value)
+        map.setView([document.getElementById(form_field_lat_id).value,
+                    document.getElementById(form_field_lon_id).value], 10)
     }
 
     // If a geocoding result is selected, add a marker and update the form field
@@ -60,7 +71,7 @@ function formMap(map_id, form_field_lat_id, form_field_lon_id, lat, lon, marker_
             var lon = (e.latlng.lng);
 
             setMarker(lat, lon)
-
+            enableSubmitButton('submit')
         }
     );
 }
