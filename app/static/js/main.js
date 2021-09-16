@@ -9,7 +9,9 @@ function enableSubmitButton(button_id){
 
 function formMap(map_id, form_field_lat_id, form_field_lon_id, marker_style) {
     // Initializing the map
-	var map = L.map(map_id).setView([47.15, 2.25], 5);
+	var map = L.map(map_id)
+        .setView([47.15, 2.25], 5)
+        .setMaxBounds([[42.19, 8.5], [51.5, -5]]);
 
     // Loading the tiles
 	L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=' + mapbox_api_key, {
