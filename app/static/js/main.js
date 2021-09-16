@@ -49,6 +49,8 @@ function formMap(map_id, form_field_lat_id, form_field_lon_id, marker_style) {
 
         document.getElementById(form_field_lat_id).value = lat;
         document.getElementById(form_field_lon_id).value = lon;
+
+        enableSubmitButton('submit')
     }
 
     // If coordinates are given, add a marker and update the form field
@@ -73,7 +75,6 @@ function formMap(map_id, form_field_lat_id, form_field_lon_id, marker_style) {
             var lon = (e.latlng.lng);
 
             setMarker(lat, lon)
-            enableSubmitButton('submit')
         }
     );
 }
