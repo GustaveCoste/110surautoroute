@@ -15,7 +15,7 @@ toolbar = DebugToolbarExtension(app)
 
 # Building CSS files at each request
 app.wsgi_app = SassMiddleware(app.wsgi_app, {
-    'app': ('static/sass', 'static/css', '/static/css')
+    'app': ('static/scss', 'static/css', '/static/css')
 })
 
 from app.forms import RouteForm

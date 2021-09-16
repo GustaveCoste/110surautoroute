@@ -1,6 +1,11 @@
 @import 'H5BP';
 @import 'colors';
 
+$fa-font-path: "../css/vendor/fontawesome/webfonts";
+@import "fontawesome/fontawesome.scss";
+@import "fontawesome/brands.scss";
+@import "fontawesome/solid.scss";
+
 @font-face{
 font-family: Poppins;
 src: url('/static/fonts/Poppins/Poppins-Medium.ttf');}
@@ -37,12 +42,32 @@ label {
   padding-top: 4px;
 }
 
-.main-title {
+header {
   padding: 20px;
   margin-bottom: 20px;
   text-align: center;
   background: $quaternary-color;
   color: $primary-color;
+}
+
+footer {
+  padding-top: 30px;
+  padding-bottom: 10px;
+  margin-top: 20px;
+  text-align: center;
+  background: $quaternary-color;
+  color: $primary-color;
+}
+
+.footer-icon {
+  font-size: xxx-large;
+  margin: 15px;
+  color: $tertiary-color;
+  transition: all 100ms ease-out;
+
+  &:hover{
+   color: $primary-color;
+ }
 }
 
 .intro-text {
@@ -57,10 +82,15 @@ a {
   }
 }
 
-.form-map {
+.map {
+  border: solid 0.3em;
+  border-radius: 10px;
+  border-color: $secondary-color;
+}
+
+.form-map{
+  @extend .map;
+
   width: 375px;
   height: 300px;
-  border: solid 0.3em;
-  border-radius: 5px;
-  border-color: $secondary-color;
 }
