@@ -22,7 +22,7 @@
             <div class="col">
                 <div class="form-group">
                     {{ form.vehicle_type.label }}<br>
-                    {{ form.vehicle_type(class='form-select') }}
+                    {{ form.vehicle_type(class_='form-select') }}
                 </div>
                 <div class="form-group">
                     {{ form.fuel_type.label }}<br>
@@ -79,7 +79,7 @@
         </div>
         <div class="form-group col-xs-1 text-center">
             {{ form.hidden_tag() }}
-            <p>{{ form.submit(class_='btn btn-dark', disabled=True) }}</p>
+            <p>{{ form.submit(class_='btn btn-dark submit-button', disabled=True) }}</p>
             <script>
                 // Enabling the button if coordinates have been provided
                 enableSubmitButton('submit', 'start_lat', 'start_lon');
