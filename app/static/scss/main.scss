@@ -18,7 +18,7 @@ body {font-family: Poppins}
   }
 }
 
-.main-form {
+.main-container{
   border-radius: 25px;
   background: $tertiary-color;
   margin-top: 40px;
@@ -93,4 +93,58 @@ a {
 
   width: 375px;
   height: 300px;
+}
+
+.result-map{
+  @extend .map;
+
+  margin-bottom:10px;
+  width: 780px;
+  height: 400px;
+}
+
+.motorway {
+  stroke: $primary-color;
+  stroke-width: 4;
+}
+
+.non-motorway {
+  stroke: $secondary-color;
+  stroke-width: 4;
+}
+
+.custom-badge {
+    display: inline-block;
+    padding: .25em .4em;
+    font-size: 75%;
+    font-weight: 700;
+    line-height: 1;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+    border-radius: .25rem;
+    color: $background-color;
+    float: right;
+    margin: 2px;
+}
+
+.custom-badge-negative {
+    background-color: $negative-color;
+}
+
+.custom-badge-positive {
+    background-color: $positive-color;
+}
+
+.highlighted {
+    color: $quaternary-color;
+}
+
+.card-header{
+    font-size: large;
+}
+
+.card-title{
+    font-size: x-large;
+    text-align: center;
 }

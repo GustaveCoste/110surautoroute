@@ -83,13 +83,13 @@ function resultMap(map_id, route_geometry, motorways_geometries) {
 
     // Loading the route geometry
     var polyline = L.Polyline.fromEncoded(route_geometry);
-    polyline.setStyle({"color": "#E8AE68", "weight": 4})
+    polyline.setStyle({className: 'non-motorway'})
     polyline.addTo(map);
     map.fitBounds(polyline.getBounds());
 
     // Loading the motorway parts geometries
     motorways_geometries.forEach(motorway_geometry => {
-        L.geoJSON(JSON.parse(motorway_geometry), {"color": "#DB5A42", "weight": 4}).addTo(map)
+        L.geoJSON(JSON.parse(motorway_geometry), {className: 'motorway'}).addTo(map)
     });
 
     // Loading the tiles
@@ -114,15 +114,15 @@ function resultMap(map_id, route_geometry, motorways_geometries) {
                 legends: [{
                     label: "-  Hors autoroute",
                     type: "polyline",
-                    color: "#E8AE68",
-                    fillColor: "#E8AE68",
+                    color: "#7389AE",
+                    fillColor: "#7389AE",
                     weight: 4,
                     layers: polyline
                 },{
                     label: "-  Autoroute",
                     type: "polyline",
-                    color: "#DB5A42",
-                    fillColor: "#DB5A42",
+                    color: "#81D2C7",
+                    fillColor: "#81D2C7",
                     weight: 4,
                     layers: polyline
                 }]
