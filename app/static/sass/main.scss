@@ -1,0 +1,15 @@
+@import 'H5BP';
+@import 'colors';
+
+@media (min-width: 1200px) {
+  .container-sm {
+    max-width: 820px;
+  }
+}
+
+.main-form {
+  border-radius: 25px;
+  background: $tertiary-color;
+  margin-top: 20px;
+  padding: 20px;
+}

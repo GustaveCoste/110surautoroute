@@ -6,3 +6,4 @@ flask_sqlalchemy
 geoalchemy2
 psycopg2
 flask-wtf
+libsass

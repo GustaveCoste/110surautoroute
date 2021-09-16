@@ -21,10 +21,8 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/vendor/bootstrap/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/vendor/leaflet/leaflet.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/vendor/leaflet/leaflet.legend.css') }}">
-    <!-- TODO: host it locally-->
-    <link rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/leaflet-geocoder-mapzen/1.9.4/leaflet-geocoder-mapzen.css">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/vendor/mapzen/leaflet-geocoder-mapzen.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.scss.css') }}">
 
     <script>
         var ors_api_key = '{{ config.ORS_API_KEY }}';
@@ -35,7 +33,7 @@
     <script src="{{ url_for('static', filename='js/vendor/leaflet/leaflet.js') }}"></script>
     <script src="{{ url_for('static', filename='js/vendor/leaflet/leaflet.legend.js') }}"></script>
     <script src="{{ url_for('static', filename='js/vendor/leaflet/Polyline.encoded.js') }}"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-geocoder-mapzen/1.9.4/leaflet-geocoder-mapzen.js"></script>
+    <script src="{{ url_for('static', filename='js/vendor/mapzen/leaflet-geocoder-mapzen.js') }}"></script>
     <script src="{{ url_for('static', filename='js/plugins.js') }}"></script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </head>

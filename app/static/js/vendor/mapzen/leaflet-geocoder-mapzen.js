@@ -1,3 +1,121 @@
+(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
+function corslite(url, callback, cors) {
+    var sent = false;
+
+    if (typeof window.XMLHttpRequest === 'undefined') {
+        return callback(Error('Browser not supported'));
+    }
+
+    if (typeof cors === 'undefined') {
+        var m = url.match(/^\s*https?:\/\/[^\/]*/);
+        cors = m && (m[0] !== location.protocol + '//' + location.hostname +
+                (location.port ? ':' + location.port : ''));
+    }
+
+    var x = new window.XMLHttpRequest();
+
+    function isSuccessful(status) {
+        return status >= 200 && status < 300 || status === 304;
+    }
+
+    if (cors && !('withCredentials' in x)) {
+        // IE8-9
+        x = new window.XDomainRequest();
+
+        // Ensure callback is never called synchronously, i.e., before
+        // x.send() returns (this has been observed in the wild).
+        // See https://github.com/mapbox/mapbox.js/issues/472
+        var original = callback;
+        callback = function() {
+            if (sent) {
+                original.apply(this, arguments);
+            } else {
+                var that = this, args = arguments;
+                setTimeout(function() {
+                    original.apply(that, args);
+                }, 0);
+            }
+        }
+    }
+
+    function loaded() {
+        if (
+            // XDomainRequest
+            x.status === undefined ||
+            // modern browsers
+            isSuccessful(x.status)) callback.call(x, null, x);
+        else callback.call(x, x, null);
+    }
+
+    // Both `onreadystatechange` and `onload` can fire. `onreadystatechange`
+    // has [been supported for longer](http://stackoverflow.com/a/9181508/229001).
+    if ('onload' in x) {
+        x.onload = loaded;
+    } else {
+        x.onreadystatechange = function readystate() {
+            if (x.readyState === 4) {
+                loaded();
+            }
+        };
+    }
+
+    // Call the callback with the XMLHttpRequest object as an error and prevent
+    // it from ever being called again by reassigning it to `noop`
+    x.onerror = function error(evt) {
+        // XDomainRequest provides no evt parameter
+        callback.call(this, evt || true, null);
+        callback = function() { };
+    };
+
+    // IE9 must have onprogress be set to a unique function.
+    x.onprogress = function() { };
+
+    x.ontimeout = function(evt) {
+        callback.call(this, evt, null);
+        callback = function() { };
+    };
+
+    x.onabort = function(evt) {
+        callback.call(this, evt, null);
+        callback = function() { };
+    };
+
+    // GET is the only supported HTTP Verb by XDomainRequest and is the
+    // only one supported here.
+    x.open('GET', url, true);
+
+    // Send the request. Sending data is not supported.
+    x.send(null);
+    sent = true;
+
+    return x;
+}
+
+if (typeof module !== 'undefined') module.exports = corslite;
+
+},{}],2:[function(_dereq_,module,exports){
+// Console-polyfill. MIT license.
+// https://github.com/paulmillr/console-polyfill
+// Make it safe to do console.log() always.
+(function(global) {
+  'use strict';
+  if (!global.console) {
+    global.console = {};
+  }
+  var con = global.console;
+  var prop, method;
+  var dummy = function() {};
+  var properties = ['memory'];
+  var methods = ('assert,clear,count,debug,dir,dirxml,error,exception,group,' +
+     'groupCollapsed,groupEnd,info,log,markTimeline,profile,profiles,profileEnd,' +
+     'show,table,time,timeEnd,timeline,timelineEnd,timeStamp,trace,warn').split(',');
+  while (prop = properties.pop()) if (!con[prop]) con[prop] = {};
+  while (method = methods.pop()) if (typeof con[method] !== 'function') con[method] = dummy;
+  // Using `this` for web workers & supports Browserify / Webpack.
+})(typeof window === 'undefined' ? this : window);
+
+},{}],3:[function(_dereq_,module,exports){
+(function (global){
 /*
  * leaflet-geocoder-mapzen
  * Leaflet plugin to search (geocode) using Mapzen Search or your
@@ -10,14 +128,14 @@
 
 // Polyfill console and its methods, if missing. (As it tends to be on IE8 (or lower))
 // when the developer console is not open.
-require('console-polyfill');
+_dereq_('console-polyfill');
 
-var L = require('leaflet');
-var corslite = require('@mapbox/corslite');
+var L = (typeof window !== "undefined" ? window['L'] : typeof global !== "undefined" ? global['L'] : null);
+var corslite = _dereq_('@mapbox/corslite');
 
 // Import utility functions. TODO: switch to Lodash (no IE8 support) in v2
-var throttle = require('./utils/throttle');
-var escapeRegExp = require('./utils/escapeRegExp');
+var throttle = _dereq_('./utils/throttle');
+var escapeRegExp = _dereq_('./utils/escapeRegExp');
 
 var VERSION = '1.9.4';
 var MINIMUM_INPUT_LENGTH_FOR_AUTOCOMPLETE = 1;
@@ -55,8 +173,8 @@ var Geocoder = L.Control.extend({
 
   options: {
     position: 'topleft',
-    attribution: 'Geocoding by <a href="https://geocode.earth">Geocode Earth</a>',
-    url: 'https://api.geocode.earth/v1',
+    attribution: 'Geocoding by <a href="https://mapzen.com/projects/search/">Mapzen</a>',
+    url: 'https://search.mapzen.com/v1',
     placeholder: null, // Note: this is now just an alias for textStrings.INPUT_PLACEHOLDER
     bounds: false,
     focus: true,
@@ -79,7 +197,7 @@ var Geocoder = L.Control.extend({
     // version, because XDomainRequest does not allow http-to-https requests
     // This is set first so it can always be overridden by the user
     if (window.XDomainRequest) {
-      this.options.url = '//api.geocode.earth/v1';
+      this.options.url = '//search.mapzen.com/v1';
     }
 
     // If the apiKey is omitted entirely and the
@@ -130,14 +248,6 @@ var Geocoder = L.Control.extend({
     // Now merge user-specified options
     L.Util.setOptions(this, options);
     this.markers = [];
-
-    // Deprecation warnings for Mapzen hosted service.
-    // Make sure people aware of Mapzen hosted services are going down.
-    var mapzenHostedServiceUrl = '//search.mapzen.com';
-
-    if (this.options.url.indexOf(mapzenHostedServiceUrl) > -1) {
-      console.warn('Mapzen is shutting down its services including Search. Read more at https://mapzen.com/blog/shutdown. To learn more about Pelias, the open-source geocoder that powers Mapzen Search, and the Pelias team’s plan for the future, please visit http://pelias.io.');
-    }
   },
 
   /**
@@ -1041,12 +1151,6 @@ var Geocoder = L.Control.extend({
 
   _disableMapScrollWheelZoom: function (event) {
     // Prevent scrolling over results list from zooming the map, if enabled
-    // Skip if it's already disabled. This prevents overriding the original
-    // map.scrollWheelZoom setting.
-    if (!this._map.scrollWheelZoom.enabled()) {
-      return;
-    }
-
     this._scrollWheelZoomEnabled = this._map.scrollWheelZoom.enabled();
     if (this._scrollWheelZoomEnabled) {
       this._map.scrollWheelZoom.disable();
@@ -1069,3 +1173,100 @@ var Geocoder = L.Control.extend({
 });
 
 module.exports = Geocoder;
+
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{"./utils/escapeRegExp":5,"./utils/throttle":6,"@mapbox/corslite":1,"console-polyfill":2}],4:[function(_dereq_,module,exports){
+(function (global){
+/*
+ * leaflet-geocoder-mapzen
+ * Leaflet plugin to search (geocode) using Mapzen Search or your
+ * own hosted version of the Pelias Geocoder API.
+ *
+ * License: MIT
+ * (c) Mapzen
+ */
+;(function (root, factory) { // eslint-disable-line no-extra-semi
+  var L;
+  if (typeof define === 'function' && define.amd) {
+    // AMD. Register as an anonymous module.
+    define(['leaflet'], factory);
+  } else if (typeof module === 'object' && module.exports) {
+    // Node. Does not work with strict CommonJS, but
+    // only CommonJS-like environments that support module.exports,
+    // like Node.
+    L = (typeof window !== "undefined" ? window['L'] : typeof global !== "undefined" ? global['L'] : null);
+    module.exports = factory(L);
+  } else {
+    // Browser globals (root is window)
+    if (typeof root.L === 'undefined') {
+      throw new Error('Leaflet must be loaded first');
+    }
+    root.Geocoder = factory(root.L);
+  }
+}(this, function (L) {
+  'use strict';
+
+  var Geocoder = _dereq_('./core');
+
+  // Automatically attach to Leaflet's `L` namespace.
+  L.Control.Geocoder = Geocoder;
+
+  L.control.geocoder = function (apiKey, options) {
+    return new L.Control.Geocoder(apiKey, options);
+  };
+
+  // Return value defines this module's export value.
+  return Geocoder;
+}));
+
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{"./core":3}],5:[function(_dereq_,module,exports){
+/*
+ * escaping a string for regex Utility function
+ * from https://stackoverflow.com/questions/3446170/escape-string-for-use-in-javascript-regex
+ */
+function escapeRegExp (str) {
+  return str.replace(/[-[\]/{}()*+?.\\^$|]/g, '\\$&');
+}
+
+module.exports = escapeRegExp;
+
+},{}],6:[function(_dereq_,module,exports){
+/*
+ * throttle Utility function (borrowed from underscore)
+ */
+function throttle (func, wait, options) {
+  var context, args, result;
+  var timeout = null;
+  var previous = 0;
+  if (!options) options = {};
+  var later = function () {
+    previous = options.leading === false ? 0 : new Date().getTime();
+    timeout = null;
+    result = func.apply(context, args);
+    if (!timeout) context = args = null;
+  };
+  return function () {
+    var now = new Date().getTime();
+    if (!previous && options.leading === false) previous = now;
+    var remaining = wait - (now - previous);
+    context = this;
+    args = arguments;
+    if (remaining <= 0 || remaining > wait) {
+      if (timeout) {
+        clearTimeout(timeout);
+        timeout = null;
+      }
+      previous = now;
+      result = func.apply(context, args);
+      if (!timeout) context = args = null;
+    } else if (!timeout && options.trailing !== false) {
+      timeout = setTimeout(later, remaining);
+    }
+    return result;
+  };
+}
+
+module.exports = throttle;
+
+},{}]},{},[4]);
