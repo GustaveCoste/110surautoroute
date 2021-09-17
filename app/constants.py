@@ -14,7 +14,8 @@ MAXIMUM_CONSUMPTION = 30
 VEHICLE_TYPES = ['Moto', 'Compacte', 'Citadine', 'Berline', 'SUV', 'Familiale']
 FUEL_TYPES = ['Diesel', 'Essence']
 # kg of CO2 emitted per liter of fuel
+# source: https://www.bilans-ges.ademe.fr/documentation/UPLOAD_DOC_FR/index.htm?new_liquides.htm
 FUEL_CO2_EMISSIONS = {
-    'Diesel': 2.66,
-    'Essence': 2.29
+    'Diesel': 3.10,
+    'Essence': 2.75
 }
