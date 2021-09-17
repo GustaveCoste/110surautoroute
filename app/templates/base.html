@@ -14,8 +14,8 @@
     <meta property="og:image" content="">
 
     <link rel="manifest" href="site.webmanifest">
-    <link rel="apple-touch-icon" href="icon.png">
-    <!-- Place favicon.ico in the root directory -->
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='img/icon.png') }}">
+    <link rel="icon" href="{{ url_for('static', filename='img/icon.png') }}">
 
     <link rel="stylesheet" href="{{ url_for('static', filename='css/vendor/normalize.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/vendor/bootstrap/bootstrap.min.css') }}">
