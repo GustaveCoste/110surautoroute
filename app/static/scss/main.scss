@@ -6,11 +6,7 @@ $fa-font-path: "../css/vendor/fontawesome/webfonts";
 @import "fontawesome/brands.scss";
 @import "fontawesome/solid.scss";
 
-@font-face{
-font-family: Poppins;
-src: url('/static/fonts/Poppins/Poppins-Medium.ttf');}
-
-body {font-family: Poppins}
+body {font-family: Rubik}
 
 @media (min-width: 1200px) {
   .container-sm {
