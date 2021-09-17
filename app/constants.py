@@ -13,3 +13,8 @@ MAXIMUM_CONSUMPTION = 30
 
 VEHICLE_TYPES = ['Moto', 'Compacte', 'Citadine', 'Berline', 'SUV', 'Familiale']
 FUEL_TYPES = ['Diesel', 'Essence']
+# kg of CO2 emitted per liter of fuel
+FUEL_CO2_EMISSIONS = {
+    'Diesel': 2.66,
+    'Essence': 2.29
+}

@@ -22,7 +22,8 @@ from app.forms import RouteForm
 from app.utils import OpenRouteServiceRouter
 from app.models import Waypoint, Motorway, db
 from app.constants import PROJECTED_CRS_SRID, WAYPOINT_MOTORWAY_DISTANCE_THRESHOLD, DEFAULT_NON_MOTORWAY_CONSUMPTION, \
-    DEFAULT_MOTORWAY_110KMH_CONSUMPTION, DEFAULT_MOTORWAY_130KMH_CONSUMPTION, CONSUMPTION_REDUCTION_FACTOR_110_130
+    DEFAULT_MOTORWAY_110KMH_CONSUMPTION, DEFAULT_MOTORWAY_130KMH_CONSUMPTION, CONSUMPTION_REDUCTION_FACTOR_110_130, \
+    FUEL_CO2_EMISSIONS
 
 router = OpenRouteServiceRouter()
 
@@ -141,6 +142,8 @@ def route():
     motorway_consumed_fuel_130 = (motorway_110kmh_consumption * (distance_110kmh / 100000)) \
                                  + (motorway_130kmh_consumption * (distance_130kmh / 100000))
     motorway_consumed_fuel_110 = motorway_110kmh_consumption * ((distance_110kmh + distance_130kmh) / 100000)
+    co2_emissions_difference = (motorway_consumed_fuel_130 - motorway_consumed_fuel_110) \
+                               * FUEL_CO2_EMISSIONS[request.args['fuel_type']]
 
     return render_template('result.html',
                            motorway_travel_time_110=motorway_travel_time_110,
@@ -150,5 +153,6 @@ def route():
                            motorway_consumed_fuel_130=motorway_consumed_fuel_130,
                            motorway_consumed_fuel_110=motorway_consumed_fuel_110,
                            route_geometry=route[0]['geometry'].replace('\\', '\\\\'),
-                           motorways_geometries=motorways_geometries
+                           motorways_geometries=motorways_geometries,
+                           co2_emissions_difference=co2_emissions_difference
                            )

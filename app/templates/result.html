@@ -17,7 +17,7 @@
             Rouler à 110 km/h au lieu de 130km/h sur ce trajet ferait perdre
             <span class="highlighted">{{ (motorway_travel_time_110 - motorway_travel_time_130) | strftimedelta }}</span>
             et économiser <span class="highlighted">{{ "{:.1f}".format(motorway_consumed_fuel_130 - motorway_consumed_fuel_110) }} l </span>
-            de carburant, soit <span class="highlighted">{{ "{:.1f}".format(motorway_consumed_fuel_130 - motorway_consumed_fuel_110) }} g</span> de CO<sub>2</sub>.
+            de carburant, soit <span class="highlighted">{{ "{:.1f}".format(co2_emissions_difference) }} kg</span> de CO<sub>2</sub>.
         </div>
     </div>
     <div class="row">
