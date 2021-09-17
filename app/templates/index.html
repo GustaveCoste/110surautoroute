@@ -24,11 +24,11 @@
             <div class="col">
                 <div class="form-group">
                     {{ form.vehicle_type.label }}<br>
-                    {{ form.vehicle_type(class_='form-select') }}
+                    {{ form.vehicle_type(class_='form-select', oninput='updateFuelConsumption()') }}
                 </div>
                 <div class="form-group">
                     {{ form.fuel_type.label }}<br>
-                    {{ form.fuel_type(class_='form-select') }}
+                    {{ form.fuel_type(class_='form-select', oninput='updateFuelConsumption()') }}
                 </div>
             </div>
             <div class="col">
@@ -94,19 +94,21 @@
 </div>
 
 <script>
+   updateFuelConsumption();
+
     formMap(
         "start_map",
         "start_lat",
         "start_lon",
         "start"
-    )
+    );
     
     formMap(
         "end_map",
         "end_lat",
         "end_lon",
         "end"
-    )
+    );
 
 
 

@@ -21,9 +21,13 @@ app.wsgi_app = SassMiddleware(app.wsgi_app, {
 from app.forms import RouteForm
 from app.utils import OpenRouteServiceRouter
 from app.models import Waypoint, Motorway, db
-from app.constants import PROJECTED_CRS_SRID, WAYPOINT_MOTORWAY_DISTANCE_THRESHOLD, DEFAULT_NON_MOTORWAY_CONSUMPTION, \
-    DEFAULT_MOTORWAY_110KMH_CONSUMPTION, DEFAULT_MOTORWAY_130KMH_CONSUMPTION, CONSUMPTION_REDUCTION_FACTOR_110_130, \
-    FUEL_CO2_EMISSIONS
+from app.constants import PROJECTED_CRS_SRID, WAYPOINT_MOTORWAY_DISTANCE_THRESHOLD, \
+    CONSUMPTION_REDUCTION_FACTOR_110_130, FUEL_CO2_EMISSIONS, DEFAULT_FUEL_CONSUMPTION_PER_VEHICLE, \
+    CONSUMPTION_FACTOR_130, CONSUMPTION_FACTOR_110
+
+app.config['DEFAULT_FUEL_CONSUMPTION_PER_VEHICLE'] = DEFAULT_FUEL_CONSUMPTION_PER_VEHICLE
+app.config['CONSUMPTION_FACTOR_130'] = CONSUMPTION_FACTOR_130
+app.config['CONSUMPTION_FACTOR_110'] = CONSUMPTION_FACTOR_110
 
 router = OpenRouteServiceRouter()
 
@@ -131,12 +135,9 @@ def route():
     motorway_travel_time_130 = timedelta(hours=((distance_130kmh / 1000) / 130) + ((distance_110kmh / 1000) / 110))
 
     # Calculating consumption difference
-    non_motorway_consumption = float(request.args.get('non_motorway_consumption',
-                                                      DEFAULT_NON_MOTORWAY_CONSUMPTION))
-    motorway_110kmh_consumption = float(request.args.get('motorway_110kmh_consumption',
-                                                         DEFAULT_MOTORWAY_110KMH_CONSUMPTION))
-    motorway_130kmh_consumption = float(request.args.get('motorway_130kmh_consumption',
-                                                         DEFAULT_MOTORWAY_130KMH_CONSUMPTION))
+    non_motorway_consumption = float(request.args['non_motorway_consumption'])
+    motorway_110kmh_consumption = float(request.args['motorway_consumption_110'])
+    motorway_130kmh_consumption = float(request.args['motorway_consumption_130'])
 
     non_motorway_consumed_fuel = non_motorway_consumption * (non_motorway_distance / 100000)
     motorway_consumed_fuel_130 = (motorway_110kmh_consumption * (distance_110kmh / 100000)) \

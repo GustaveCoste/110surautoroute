@@ -25,8 +25,11 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.scss.css') }}">
 
     <script>
-        var ors_api_key = '{{ config.ORS_API_KEY }}';
-        var mapbox_api_key = '{{ config.MAPBOX_API_KEY }}';
+        var orsApiKey = '{{ config.ORS_API_KEY }}';
+        var mapboxApiKey = '{{ config.MAPBOX_API_KEY }}';
+        var defaultFuelConsumptionPerVehicle = {{ config.DEFAULT_FUEL_CONSUMPTION_PER_VEHICLE | tojson | safe }};
+        var consumptionFactor110 = '{{ config.CONSUMPTION_FACTOR_110 }}';
+        var consumptionFactor130 = '{{ config.CONSUMPTION_FACTOR_130 }}';
     </script>
     <script src="{{ url_for('static', filename='js/vendor/modernizr-3.11.2.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/vendor/bootstrap/bootstrap.min.js') }}"></script>

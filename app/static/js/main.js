@@ -1,3 +1,14 @@
+function updateFuelConsumption(){
+    var vehicleType = document.getElementById('vehicle_type').value;
+    var fuelType = document.getElementById('fuel_type').value;
+
+    document.getElementById('non_motorway_consumption').value = defaultFuelConsumptionPerVehicle[vehicleType][fuelType];
+    document.getElementById('motorway_consumption_130').value =
+        Math.round(defaultFuelConsumptionPerVehicle[vehicleType][fuelType] * consumptionFactor130 * 10) / 10;
+    document.getElementById('motorway_consumption_110').value =
+        Math.round(defaultFuelConsumptionPerVehicle[vehicleType][fuelType] * consumptionFactor110 * 10) / 10;
+}
+
 function enableSubmitButton(button_id){
     if ((document.getElementById('start_lat').value !== '')
         && (document.getElementById('start_lon').value !== '')
@@ -14,7 +25,7 @@ function formMap(map_id, form_field_lat_id, form_field_lon_id, marker_style) {
         .setMaxBounds([[42.19, 8.5], [51.5, -5]]);
 
     // Loading the tiles
-	L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=' + mapbox_api_key, {
+	L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=' + mapboxApiKey, {
 		maxZoom: 18,
 		minZoom: 5,
 		attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, ' +
@@ -34,7 +45,7 @@ function formMap(map_id, form_field_lat_id, form_field_lon_id, marker_style) {
         markers: false
         }
 
-    var geocoder = L.control.geocoder(ors_api_key, geocoderOptions);
+    var geocoder = L.control.geocoder(orsApiKey, geocoderOptions);
     geocoder.addTo(map);
 
     var markers = L.layerGroup();
@@ -94,7 +105,7 @@ function resultMap(map_id, route_geometry, motorways_geometries) {
     });
 
     // Loading the tiles
-    L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=' + mapbox_api_key, {
+    L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=' + mapboxApiKey, {
         maxZoom: 18,
         minZoom: 5,
         attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, ' +
