@@ -140,6 +140,13 @@ a {
     color: $quaternary-color;
 }
 
+.card{
+    background: $background-color;
+    border-color: $secondary-color !important;
+    border: solid 2px;
+    border-radius: 5px;
+}
+
 .card-header{
     font-size: large;
 }
