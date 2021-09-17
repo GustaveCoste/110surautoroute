@@ -6,7 +6,13 @@ $fa-font-path: "../css/vendor/fontawesome/webfonts";
 @import "fontawesome/brands.scss";
 @import "fontawesome/solid.scss";
 
-body {font-family: Rubik}
+body {
+    font-family: Rubik;
+}
+
+option {
+  font: -moz-pull-down-menu;
+}
 
 @media (min-width: 1200px) {
   .container-sm {
