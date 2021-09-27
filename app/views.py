@@ -162,3 +162,8 @@ def route():
 @app.errorhandler(404)
 def page_not_found(e):
     return render_template('404.html'), 404
+
+
+@app.route('/references/')
+def references():
+    return render_template('references.html')
