@@ -7,13 +7,13 @@
         parcours.</p>
     <form action="" method="get">
         <div class="row">
-            <div class="col form-group">
+            <div class="col-sm form-group">
                 <label>Départ</label>
                 <div id="start_map" class="form-map"></div>
                 {{ form.start_lon() }}
                 {{ form.start_lat() }}
             </div>
-            <div class="col form-group">
+            <div class="col-sm form-group">
                 <label>Arrivée</label>
                 <div id="end_map" class="form-map"></div>
                 {{ form.end_lon() }}
@@ -21,7 +21,7 @@
             </div>
         </div>
         <div class="row">
-            <div class="col">
+            <div class="col-sm">
                 <div class="form-group">
                     {{ form.vehicle_type.label }}<br>
                     {{ form.vehicle_type(class_='form-select', oninput='updateFuelConsumption()') }}
@@ -31,7 +31,7 @@
                     {{ form.fuel_type(class_='form-select', oninput='updateFuelConsumption()') }}
                 </div>
             </div>
-            <div class="col">
+            <div class="col-sm">
 
                 <div class="form-group">
                     {{ form.non_motorway_consumption.label }}<br>
