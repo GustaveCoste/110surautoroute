@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 from flask import Flask, request, render_template, url_for, redirect
 from flask_debugtoolbar import DebugToolbarExtension
@@ -20,7 +20,7 @@ app.wsgi_app = SassMiddleware(app.wsgi_app, {
 
 from app.forms import RouteForm
 from app.utils import OpenRouteServiceRouter
-from app.models import Waypoint, Motorway, db
+from app.models import Waypoint, Motorway, CalculationRequest, CalculationResponse, db
 from app.constants import PROJECTED_CRS_SRID, WAYPOINT_MOTORWAY_DISTANCE_THRESHOLD, \
     CONSUMPTION_REDUCTION_FACTOR_110_130, FUEL_CO2_EMISSIONS, DEFAULT_FUEL_CONSUMPTION_PER_VEHICLE, \
     CONSUMPTION_FACTOR_130, CONSUMPTION_FACTOR_110
@@ -50,6 +50,21 @@ def index():
 
 @app.route('/route/')
 def route():
+    start_time = datetime.now()
+    calculation_request = CalculationRequest(start_latitude=request.args.get('start_lat'),
+                                             start_longitude=request.args.get('start_lon'),
+                                             end_latitude=request.args.get('end_lat'),
+                                             end_longitude=request.args.get('end_lon'),
+                                             vehicle_type=request.args.get('vehicle_type'),
+                                             fuel_type=request.args.get('fuel_type'),
+                                             non_motorway_consumption=request.args.get('non_motorway_consumption'),
+                                             motorway_consumption_110=request.args.get('motorway_consumption_110'),
+                                             motorway_consumption_130=request.args.get('motorway_consumption_130'),
+                                             client_platform=request.user_agent.platform,
+                                             user_agent=request.user_agent.string)
+    db.session.add(calculation_request)
+    db.session.commit()
+
     start_lon, start_lat = request.args.get('start_lon'), request.args.get('start_lat')
     end_lon, end_lat = request.args.get('end_lon'), request.args.get('end_lat')
 
@@ -145,6 +160,17 @@ def route():
     motorway_consumed_fuel_110 = motorway_110kmh_consumption * ((distance_110kmh + distance_130kmh) / 100000)
     co2_emissions_difference = (motorway_consumed_fuel_130 - motorway_consumed_fuel_110) \
                                * FUEL_CO2_EMISSIONS[request.args['fuel_type']]
+
+    calculation_response = CalculationResponse(calculation_request=calculation_request,
+                                               response_time=datetime.now() - start_time,
+                                               motorway_travel_time_110=motorway_travel_time_110,
+                                               motorway_travel_time_130=motorway_travel_time_130,
+                                               non_motorway_travel_time=non_motorway_travel_time,
+                                               non_motorway_consumed_fuel=non_motorway_consumed_fuel,
+                                               motorway_consumed_fuel_130=motorway_consumed_fuel_130,
+                                               motorway_consumed_fuel_110=motorway_consumed_fuel_110)
+    db.session.add(calculation_response)
+    db.session.commit()
 
     return render_template('result.html',
                            motorway_travel_time_110=motorway_travel_time_110,
