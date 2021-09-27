@@ -157,3 +157,8 @@ def route():
                            motorways_geometries=motorways_geometries,
                            co2_emissions_difference=co2_emissions_difference
                            )
+
+
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('404.html'), 404
