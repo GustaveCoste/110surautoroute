@@ -11,3 +11,8 @@ def _strftimedelta(td):
         return f"{hours} h {minutes} min"
     else:
         return f"{minutes} min"
+
+
+@app.template_filter('readable_float')
+def _readable_float(fl):
+    return str(round(fl, 1)).replace('.', ',')

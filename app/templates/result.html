@@ -15,9 +15,9 @@
     <div class="row">
         <div class="conclusion-text">
             Rouler à 110 km/h au lieu de 130km/h sur ce trajet ferait perdre
-            <span class="highlighted">{{ (motorway_travel_time_110 - motorway_travel_time_130) | strftimedelta }}</span>
-            et économiser <span class="highlighted">{{ "{:.1f}".format(motorway_consumed_fuel_130 - motorway_consumed_fuel_110) }} l </span>
-            de carburant, soit <span class="highlighted">{{ "{:.1f}".format(co2_emissions_difference) }} kg</span> de CO<sub>2</sub>.
+            <strong class="highlighted">{{ (motorway_travel_time_110 - motorway_travel_time_130) | strftimedelta }}</strong>
+            et économiser <strong class="highlighted">{{ (motorway_consumed_fuel_130 - motorway_consumed_fuel_110) | readable_float }} l </strong>
+            de carburant, soit <strong class="highlighted">{{ co2_emissions_difference | readable_float }} kg</strong> de CO<sub>2</sub>.
         </div>
     </div>
     <div class="row">
@@ -48,15 +48,15 @@
                     <ul class="list-group">
                         <li class="list-group-item">
                             <span class="highlighted">Hors autoroute : </span>
-                            {{ "{:.1f}".format(non_motorway_consumed_fuel) }} l
+                            {{ non_motorway_consumed_fuel | readable_float }} l
                         </li>
                         <li class="list-group-item">
                             <span class="highlighted">Autoroute : </span>
-                            {{ "{:.1f}".format(motorway_consumed_fuel_130) }} l
+                            {{ motorway_consumed_fuel_130 | readable_float }} l
                         </li>
                         <li class="list-group-item">
                             <span class="highlighted">Total : </span>
-                            {{ "{:.1f}".format(non_motorway_consumed_fuel + motorway_consumed_fuel_130) }} l
+                            {{ (non_motorway_consumed_fuel + motorway_consumed_fuel_130) | readable_float }} l
                         </li>
                     </ul>
                 </div>
@@ -77,12 +77,12 @@
                         <li class="list-group-item">
                             <span class="highlighted">Autoroute : </span>
                             {{ motorway_travel_time_110 | strftimedelta }}
-                            <span class="custom-badge custom-badge-negative">+ {{ "{:.1f}".format(100 * ((motorway_travel_time_110 - motorway_travel_time_130) / motorway_travel_time_130)) }} %</span>
+                            <span class="custom-badge custom-badge-negative">+ {{ (100 * ((motorway_travel_time_110 - motorway_travel_time_130) / motorway_travel_time_130)) | readable_float }} %</span>
                         </li>
                         <li class="list-group-item">
                             <span class="highlighted">Total : </span>
                             {{ (non_motorway_travel_time + motorway_travel_time_110) | strftimedelta }}
-                            <span class="custom-badge custom-badge-negative">+ {{ "{:.1f}".format(100 * ((motorway_travel_time_110 - motorway_travel_time_130) / (non_motorway_travel_time + motorway_travel_time_130))) }} %</span>
+                            <span class="custom-badge custom-badge-negative">+ {{ (100 * ((motorway_travel_time_110 - motorway_travel_time_130) / (non_motorway_travel_time + motorway_travel_time_130))) | readable_float }} %</span>
                         </li>
                     </ul>
                     <div class="card-header">
@@ -91,18 +91,18 @@
                     <ul class="list-group">
                         <li class="list-group-item">
                             <span class="highlighted">Hors autoroute : </span>
-                            {{ "{:.1f}".format(non_motorway_consumed_fuel) }} l
+                            {{ non_motorway_consumed_fuel | readable_float }} l
                         </li>
                         <li class="list-group-item">
                             <span class="highlighted">Autoroute : </span>
-                            {{ "{:.1f}".format(motorway_consumed_fuel_110) }} l
-                            <span class="custom-badge custom-badge-positive">- {{ "{:.1f}".format(100 * ((motorway_consumed_fuel_130 - motorway_consumed_fuel_110) / (motorway_consumed_fuel_130))) }} %</span>
+                            {{ motorway_consumed_fuel_110 | readable_float }} l
+                            <span class="custom-badge custom-badge-positive">- {{ (100 * ((motorway_consumed_fuel_130 - motorway_consumed_fuel_110) / (motorway_consumed_fuel_130))) | readable_float }} %</span>
 
                         </li>
                         <li class="list-group-item">
                             <span class="highlighted">Total : </span>
-                                {{ "{:.1f}".format(non_motorway_consumed_fuel + motorway_consumed_fuel_110) }} l
-                            <span class="custom-badge custom-badge-positive">- {{ "{:.1f}".format(100 * ((motorway_consumed_fuel_130 - motorway_consumed_fuel_110) / (non_motorway_consumed_fuel + motorway_consumed_fuel_130))) }} %</span>
+                                {{ (non_motorway_consumed_fuel + motorway_consumed_fuel_110) | readable_float }} l
+                            <span class="custom-badge custom-badge-positive">- {{ (100 * ((motorway_consumed_fuel_130 - motorway_consumed_fuel_110) / (non_motorway_consumed_fuel + motorway_consumed_fuel_130))) | readable_float }} %</span>
                         </li>
                     </ul>
                 </div>
