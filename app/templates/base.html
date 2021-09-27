@@ -30,6 +30,7 @@
         var defaultFuelConsumptionPerVehicle = {{ config.DEFAULT_FUEL_CONSUMPTION_PER_VEHICLE | tojson | safe }};
         var consumptionFactor110 = '{{ config.CONSUMPTION_FACTOR_110 }}';
         var consumptionFactor130 = '{{ config.CONSUMPTION_FACTOR_130 }}';
+
     </script>
     <script src="{{ url_for('static', filename='js/vendor/modernizr-3.11.2.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/vendor/bootstrap/bootstrap.min.js') }}"></script>
@@ -43,7 +44,9 @@
 
 <body>
 {% include 'header.html' %}
-{% block content %}{% endblock %}
+<div class="content">
+    {% block content %}{% endblock %}
+</div>
 {% include 'footer.html' %}
 
 </body>
