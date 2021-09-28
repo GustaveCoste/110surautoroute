@@ -13,6 +13,6 @@ ORS_API_URL = 'https://api.openrouteservice.org/v2/directions/driving-car'
 MAPBOX_API_KEY = os.environ['MAPBOX_API_KEY']
 
 # Database initialization
-SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL']
+SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL').replace("postgres://", "postgresql://")
 
 TITLE = "110 km/h sur l'autoroute"
