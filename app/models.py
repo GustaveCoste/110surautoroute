@@ -54,8 +54,8 @@ class CalculationRequest(db.Model):
                  motorway_consumption_110: float,
                  client_platform: str,
                  user_agent: str):
-        self.start_geometry = f"POINT({start_longitude} {start_latitude})"
-        self.end_geometry = f"POINT({end_longitude} {end_latitude})"
+        self.start_geometry = f"SRID=4326;POINT({start_longitude} {start_latitude})"
+        self.end_geometry = f"SRID=4326;POINT({end_longitude} {end_latitude})"
         self.vehicle_type = vehicle_type
         self.fuel_type = fuel_type
         self.non_motorway_consumption = non_motorway_consumption
