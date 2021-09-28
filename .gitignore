@@ -1,4 +1,4 @@
 /.idea/
-config.py
+.env
 /app/static/css/main.scss.css
 /app/static/css/main.scss.css.map

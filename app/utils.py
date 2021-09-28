@@ -1,10 +1,9 @@
 from abc import ABC
 import json
 
-import googlemaps
 import requests
 
-from config import GOOGLEMAPS_API_KEY, ORS_API_KEY, ORS_API_URL
+from config import ORS_API_KEY, ORS_API_URL
 from app.views import app
 
 
@@ -29,18 +28,6 @@ class Router(ABC):
 
     def get_route(self, start_lat, start_lon, end_lat, end_lon):
         pass
-
-
-# TODO: make all classes return the same object with get_route
-
-class GoogleMapsAPIRouter(Router):
-    gmaps = googlemaps.Client(key=GOOGLEMAPS_API_KEY)
-
-    @check_coordinates
-    def get_route(self, start_lat, start_lon, end_lat, end_lon):
-        return self.gmaps.directions(origin=f'{start_lat},{start_lon}',
-                                     destination=f'{end_lat},{end_lon}',
-                                     mode='driving')
 
 
 class OpenRouteServiceRouter(Router):

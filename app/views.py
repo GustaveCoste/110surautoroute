@@ -1,7 +1,6 @@
 from datetime import datetime, timedelta
 
 from flask import Flask, request, render_template, url_for, redirect
-from flask_debugtoolbar import DebugToolbarExtension
 from sassutils.wsgi import SassMiddleware
 from geoalchemy2 import func
 import polyline
@@ -10,8 +9,6 @@ app = Flask(__name__)
 app.debug = True
 
 app.config.from_object('config')
-
-toolbar = DebugToolbarExtension(app)
 
 # Building CSS files at each request
 app.wsgi_app = SassMiddleware(app.wsgi_app, {
