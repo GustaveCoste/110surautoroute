@@ -24,7 +24,7 @@ class Waypoint(db.Model):
     geometry = db.Column(Geometry(geometry_type='POINT', srid=4326))
 
     def __init__(self, latitude: float, longitude: float):
-        self.geometry = f"POINT({longitude} {latitude})"
+        self.geometry = f"SRID=4326;POINT({longitude} {latitude})"
 
 
 class CalculationRequest(db.Model):
