@@ -6,7 +6,6 @@ from geoalchemy2 import func
 import polyline
 
 app = Flask(__name__)
-app.debug = True
 
 app.config.from_object('config')
 
