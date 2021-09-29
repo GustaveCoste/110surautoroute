@@ -9,11 +9,10 @@ app = Flask(__name__)
 
 app.config.from_object('config')
 
-if app.config['FLASK_ENV'] == 'development':
-    # Building CSS files at each request
-    app.wsgi_app = SassMiddleware(app.wsgi_app, {
-        'app': ('static/scss', 'static/css', '/static/css')
-    })
+# Building CSS files at each request
+app.wsgi_app = SassMiddleware(app.wsgi_app, {
+    'app': ('static/scss', 'static/css', '/static/css')
+})
 
 from app.forms import RouteForm
 from app.utils import OpenRouteServiceRouter
