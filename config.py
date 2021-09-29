@@ -1,6 +1,7 @@
 import os
 
-DEBUG = os.environ['DEBUG']
+FLASK_ENV = os.environ.get('FLASK_ENV')
+DEBUG = bool(os.environ.get('DEBUG'))
 
 # Protecting against CSRF attacks
 SECRET_KEY = os.environ['SECRET_KEY']
