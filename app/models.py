@@ -12,19 +12,20 @@ db = SQLAlchemy(app)
 
 class Motorway(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    osm_id = db.Column(db.Integer)
-    highway_type = db.Column('highway', db.Text)
     maxspeed = db.Column(db.Integer, nullable=True)
-    length = db.Column(db.Float)
     geometry = db.Column(Geometry(geometry_type='LINESTRING', srid=PROJECTED_CRS_SRID))
 
 
 class Waypoint(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    segment = db.Column(db.Integer)
+    rank = db.Column(db.Integer)
     geometry = db.Column(Geometry(geometry_type='POINT', srid=4326))
 
-    def __init__(self, latitude: float, longitude: float):
+    def __init__(self, latitude: float, longitude: float, rank: int, segment: int):
         self.geometry = f"SRID=4326;POINT({longitude} {latitude})"
+        self.rank = rank
+        self.segment = segment
 
 
 class CalculationRequest(db.Model):
@@ -83,7 +84,7 @@ def init_db():
     db.drop_all()
     db.create_all()
 
-    with app.open_resource('static/motorway.sql') as file:
+    with app.open_resource('static/db_init.sql') as file:
         db.engine.execute(file.read().decode('utf8'))
 
     lg.warning('Database initialized!')

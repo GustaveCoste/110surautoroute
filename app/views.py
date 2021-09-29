@@ -3,7 +3,10 @@ from datetime import datetime, timedelta
 from flask import Flask, request, render_template, url_for, redirect
 from sassutils.wsgi import SassMiddleware
 from geoalchemy2 import func
+from geoalchemy2.types import to_shape
 import polyline
+from shapely.geometry import LineString
+from geomet import wkt
 
 app = Flask(__name__)
 
@@ -84,62 +87,71 @@ def route():
     non_motorway_travel_time = timedelta(seconds=sum([x['duration'] for x in non_motorway_segments]))
     non_motorway_distance = sum([x['distance'] for x in non_motorway_segments])
 
-    # Getting the motorway elements in the database corresponding to this segment
-    distance_130kmh = distance_110kmh = 0
-
     db.session.begin()
     motorway_waypoints = []
-    for motorway_segment in motorway_segments:
-        motorway_waypoints += [Waypoint(latitude=coords[0], longitude=coords[1])
-                               for coords
-                               in waypoints[motorway_segment['way_points'][0]
-                                            :motorway_segment['way_points'][1]]]
+    for segment_index, motorway_segment in enumerate(motorway_segments):
+        motorway_waypoints += [Waypoint(latitude=coords[0], longitude=coords[1], rank=rank, segment=segment_index)
+                               for rank, coords
+                               in enumerate(waypoints[motorway_segment['way_points'][0]
+                                                      :motorway_segment['way_points'][1]])]
 
     # Adding waypoints to the database
     db.session.add_all(motorway_waypoints)
     app.logger.info(f"{len(motorway_waypoints)} motorway waypoints identified.")
 
-    # Removing waypoints that are on a motorway link (to avoid selection of a wrong motorway element if a waypoint
-    # is on a motorway link over an undesired motorway element)
-    ids_to_delete = Waypoint.query \
-        .join(Motorway,
-              Motorway.geometry.ST_Intersects(
-                  func.ST_Buffer(
-                      func.ST_Transform(Waypoint.geometry,
-                                        PROJECTED_CRS_SRID),
-                      WAYPOINT_MOTORWAY_DISTANCE_THRESHOLD,
-                      10)
-              )) \
-        .filter((Motorway.highway_type == 'motorway_link')) \
-        .group_by(Waypoint) \
-        .with_entities(Waypoint.id)
+    # Getting every waypoint over a 130 km/h or 110 km/h motorway element
+    # For some reason, it is faster to query separately according to the max speed rather than to add the max speed to
+    # the queried fields and to remove filter.
+    categorized_motorway_waypoints = dict()
+    for max_speed in (110, 130):
+        query = Waypoint.query \
+            .with_entities(Waypoint.segment,
+                           Waypoint.rank,
+                           Waypoint.geometry,
+                           func.ST_Transform(Waypoint.geometry, PROJECTED_CRS_SRID).label('projected_geometry')) \
+            .join(Motorway,
+                  Motorway.geometry.ST_Intersects(
+                      func.ST_Buffer(
+                          func.ST_Transform(Waypoint.geometry,
+                                            PROJECTED_CRS_SRID),
+                          WAYPOINT_MOTORWAY_DISTANCE_THRESHOLD,
+                          10)
+                  )) \
+            .filter(Motorway.maxspeed == max_speed)
 
-    nb_deleted_waypoints = Waypoint.query.filter(Waypoint.id.in_(ids_to_delete)).delete(synchronize_session=False)
-    app.logger.info(f"{nb_deleted_waypoints} deleted waypoints.")
+        for waypoint in query:
+            if waypoint.segment not in categorized_motorway_waypoints:
+                categorized_motorway_waypoints[waypoint.segment] = []
 
-    # Getting every motorway element close to a route waypoint
-    motorway_query = Motorway.query \
-        .with_entities(Motorway.length,
-                       Motorway.maxspeed,
-                       func.ST_AsGeoJSON(func.ST_Transform(Motorway.geometry, 4326)).label('geojson_geometry')) \
-        .join(Waypoint,
-              Motorway.geometry.ST_Intersects(
-                  func.ST_Buffer(
-                      func.ST_Transform(Waypoint.geometry,
-                                        PROJECTED_CRS_SRID),
-                      WAYPOINT_MOTORWAY_DISTANCE_THRESHOLD,
-                      10)
-              )) \
-        .filter((Motorway.highway_type == 'motorway')) \
-        .group_by(Motorway)
-
-    distance_130kmh += sum([x.length for x in motorway_query if x.maxspeed == '130'])
-    distance_110kmh += sum([x.length for x in motorway_query if x.maxspeed == '110'])
-    motorways_geometries = [x.geojson_geometry for x in motorway_query]
-    app.logger.info(f"{motorway_query.count()} motorway elements identified.")
+            categorized_motorway_waypoints[waypoint.segment].append({'rank': waypoint.rank,
+                                                                     'maxspeed': max_speed,
+                                                                     'geometry': to_shape(waypoint.geometry),
+                                                                     'projected_geometry': to_shape(waypoint.projected_geometry)})
 
     # Removing waypoints from the database
     db.session.rollback()
+
+    # For each segment, sorting the waypoints and computing the distance between them separately according if they are
+    # at 110 km/h or 130 km/h
+    distances = {110: 0,
+                 130: 0}
+
+    for motorway_segment_waypoints in categorized_motorway_waypoints.values():
+        motorway_segment_waypoints.sort(key=lambda x: x['rank'])
+
+        # Looping on each waypoint to add the distance between itself and the next one to the appropriate distance field
+        start_geom = motorway_segment_waypoints[0]['projected_geometry']
+        for waypoint in motorway_segment_waypoints[1:]:
+            end_geom = waypoint['projected_geometry']
+            distances[waypoint['maxspeed']] += start_geom.distance(end_geom)
+            start_geom = end_geom
+
+    distance_110kmh = distances[110]
+    distance_130kmh = distances[130]
+
+    # Creating linestring geometries for each segment by joining the waypoints
+    motorways_geometries = [wkt.loads(LineString([wp['geometry'] for wp in segment]).wkt)
+                            for segment in categorized_motorway_waypoints.values()]
 
     # Calculating travelled time at different speeds
     motorway_travel_time_110 = timedelta(hours=(((distance_130kmh + distance_110kmh) / 1000) / 110))

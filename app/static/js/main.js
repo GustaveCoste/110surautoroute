@@ -101,7 +101,7 @@ function resultMap(map_id, route_geometry, motorways_geometries) {
 
     // Loading the motorway parts geometries
     motorways_geometries.forEach(motorway_geometry => {
-        L.geoJSON(JSON.parse(motorway_geometry), {className: 'motorway'}).addTo(map)
+        L.geoJSON(motorway_geometry, {className: 'motorway'}).addTo(map)
     });
 
     // Loading the tiles
