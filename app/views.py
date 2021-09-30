@@ -18,7 +18,7 @@ app.wsgi_app = SassMiddleware(app.wsgi_app, {
 })
 
 from app.forms import RouteForm
-from app.utils import OpenRouteServiceRouter
+from app.utils import OpenRouteServiceRouter, get_fuel_prices
 from app.models import Waypoint, Motorway, CalculationRequest, CalculationResponse, db
 from app.constants import PROJECTED_CRS_SRID, WAYPOINT_MOTORWAY_DISTANCE_THRESHOLD, \
     CONSUMPTION_REDUCTION_FACTOR_110_130, FUEL_CO2_EMISSIONS, DEFAULT_FUEL_CONSUMPTION_PER_VEHICLE, \
@@ -44,7 +44,8 @@ def index():
                            start_lat=request.args.get('start_lat') or 'undefined',
                            start_lon=request.args.get('start_lon') or 'undefined',
                            end_lat=request.args.get('end_lat') or 'undefined',
-                           end_lon=request.args.get('end_lon') or 'undefined')
+                           end_lon=request.args.get('end_lon') or 'undefined',
+                           fuel_prices=get_fuel_prices())
 
 
 @app.route('/route/')
@@ -126,7 +127,8 @@ def route():
             categorized_motorway_waypoints[waypoint.segment].append({'rank': waypoint.rank,
                                                                      'maxspeed': max_speed,
                                                                      'geometry': to_shape(waypoint.geometry),
-                                                                     'projected_geometry': to_shape(waypoint.projected_geometry)})
+                                                                     'projected_geometry': to_shape(
+                                                                         waypoint.projected_geometry)})
 
     # Removing waypoints from the database
     db.session.rollback()
@@ -169,6 +171,8 @@ def route():
     co2_emissions_difference = (motorway_consumed_fuel_130 - motorway_consumed_fuel_110) \
                                * FUEL_CO2_EMISSIONS[request.args['fuel_type']]
 
+    saved_money = (motorway_consumed_fuel_130 - motorway_consumed_fuel_110) * float(request.args['fuel_price'])
+
     calculation_response = CalculationResponse(calculation_request=calculation_request,
                                                response_time=datetime.now() - start_time,
                                                motorway_travel_time_110=motorway_travel_time_110,
@@ -176,7 +180,8 @@ def route():
                                                non_motorway_travel_time=non_motorway_travel_time,
                                                non_motorway_consumed_fuel=non_motorway_consumed_fuel,
                                                motorway_consumed_fuel_130=motorway_consumed_fuel_130,
-                                               motorway_consumed_fuel_110=motorway_consumed_fuel_110)
+                                               motorway_consumed_fuel_110=motorway_consumed_fuel_110,
+                                               saved_money=saved_money)
     db.session.add(calculation_response)
     db.session.commit()
 
@@ -189,8 +194,8 @@ def route():
                            motorway_consumed_fuel_110=motorway_consumed_fuel_110,
                            route_geometry=route[0]['geometry'].replace('\\', '\\\\'),
                            motorways_geometries=motorways_geometries,
-                           co2_emissions_difference=co2_emissions_difference
-                           )
+                           co2_emissions_difference=co2_emissions_difference,
+                           saved_money=saved_money)
 
 
 @app.errorhandler(404)

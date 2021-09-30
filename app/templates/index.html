@@ -2,6 +2,12 @@
 
 {% block content %}
 
+<script>
+    var fuelPrices = {{ fuel_prices | tojson | safe }};
+
+
+</script>
+
 <div class="container-sm main-container">
     <p style="text-align: center; font-size: 1.3em;">Calculez la différence de temps de trajet et de consommation sur un
         parcours.</p>
@@ -24,11 +30,20 @@
             <div class="col-sm">
                 <div class="form-group">
                     {{ form.vehicle_type.label }}<br>
-                    {{ form.vehicle_type(class_='form-select', oninput='updateFuelConsumption()') }}
+                    {{ form.vehicle_type(class_='form-select', oninput='updateFuelConsumptionAndPrice()') }}
                 </div>
                 <div class="form-group">
                     {{ form.fuel_type.label }}<br>
-                    {{ form.fuel_type(class_='form-select', oninput='updateFuelConsumption()') }}
+                    {{ form.fuel_type(class_='form-select', oninput='updateFuelConsumptionAndPrice()') }}
+                </div>
+                <div class="form-group">
+                    {{ form.fuel_price.label }}<br>
+                    <div class="input-group">
+                        {{ form.fuel_price(step=0.01, class_='consumption_input form-control', dir="rtl") }}
+                        <div class="input-group-append">
+                            <span class="input-group-text"> €/l </span>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="col-sm">
@@ -78,6 +93,9 @@
 
 
 
+
+
+
                     </script>
                 </div>
             </div>
@@ -90,13 +108,16 @@
                 enableSubmitButton('submit', 'start_lat', 'start_lon');
 
 
+
+
+
             </script>
         </div>
     </form>
 </div>
 
 <script>
-   updateFuelConsumption();
+   updateFuelConsumptionAndPrice();
 
     formMap(
         "start_map",
@@ -111,6 +132,9 @@
         "end_lon",
         "end"
     );
+
+
+
 
 
 

@@ -1,5 +1,7 @@
 import os
 
+TITLE = "110 km/h sur l'autoroute"
+
 FLASK_ENV = os.environ.get('FLASK_ENV')
 DEBUG = bool(os.environ.get('DEBUG'))
 
@@ -16,4 +18,4 @@ MAPBOX_API_KEY = os.environ['MAPBOX_API_KEY']
 # Database initialization
 SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL').replace("postgres://", "postgresql://")
 
-TITLE = "110 km/h sur l'autoroute"
+FUEL_PRICE_API_URL = "https://www.data.gouv.fr/fr/datasets/r/087dfcbc-8119-4814-8412-d0a387fac561"

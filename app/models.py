@@ -76,8 +76,16 @@ class CalculationResponse(db.Model):
     non_motorway_consumed_fuel = db.Column(db.Float)
     motorway_consumed_fuel_130 = db.Column(db.Float)
     motorway_consumed_fuel_110 = db.Column(db.Float)
+    saved_money = db.Column(db.Float)
 
     calculation_request = db.relationship("CalculationRequest", back_populates="calculation_response")
+
+
+class FuelPrice(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    fuel_type = db.Column(db.Text, unique=True)
+    price = db.Column(db.Float)
+    last_update = db.Column(db.DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
 
 def init_db():

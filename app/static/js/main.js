@@ -1,7 +1,8 @@
-function updateFuelConsumption(){
+function updateFuelConsumptionAndPrice(){
     var vehicleType = document.getElementById('vehicle_type').value;
     var fuelType = document.getElementById('fuel_type').value;
 
+    document.getElementById('fuel_price').value = Math.round(fuelPrices[fuelType] * 100) / 100;
     document.getElementById('non_motorway_consumption').value = defaultFuelConsumptionPerVehicle[vehicleType][fuelType];
     document.getElementById('motorway_consumption_130').value =
         Math.round(defaultFuelConsumptionPerVehicle[vehicleType][fuelType] * consumptionFactor130 * 10) / 10;

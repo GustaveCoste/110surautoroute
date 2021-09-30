@@ -5,6 +5,7 @@ from wtforms.widgets.html5 import NumberInput
 from wtforms_html5 import AutoAttrMeta
 
 from app.constants import MINIMUM_CONSUMPTION, MAXIMUM_CONSUMPTION, VEHICLE_TYPES, FUEL_TYPES
+from app.utils import get_fuel_prices
 
 consumption_validator = NumberRange(min=MINIMUM_CONSUMPTION,
                                     max=MAXIMUM_CONSUMPTION)
@@ -30,6 +31,10 @@ class RouteForm(FlaskForm):
                             default=FUEL_TYPES[0],
                             choices=FUEL_TYPES,
                             validators=[DataRequired()])
+    fuel_price = DecimalField('Prix du carburant',
+                              default=get_fuel_prices()[FUEL_TYPES[0]],
+                              widget=NumberInput(),
+                              validators=[DataRequired()])
     non_motorway_consumption = DecimalField('Consommation hors autoroute',
                                             widget=NumberInput(),
                                             validators=[DataRequired(),

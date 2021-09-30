@@ -46,3 +46,10 @@ DEFAULT_FUEL_CONSUMPTION_PER_VEHICLE = {
         'Essence': 8.5
     }
 }
+
+# Duration in days to consider fuel prices as outdated
+FUEL_PRICES_EXPIRATION = 1
+FUEL_NAMES_IN_PRICES_FILE = {
+    'Gazole': 'Diesel',
+    'E10': 'Essence',
+}
