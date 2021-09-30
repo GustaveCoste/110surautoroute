@@ -32,7 +32,6 @@ class RouteForm(FlaskForm):
                             choices=FUEL_TYPES,
                             validators=[DataRequired()])
     fuel_price = DecimalField('Prix du carburant',
-                              default=get_fuel_prices()[FUEL_TYPES[0]],
                               widget=NumberInput(),
                               validators=[DataRequired()])
     non_motorway_consumption = DecimalField('Consommation hors autoroute',
