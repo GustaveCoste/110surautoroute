@@ -142,3 +142,8 @@ function resultMap(map_id, route_geometry, motorways_geometries) {
             })
             .addTo(map);
 }
+
+function activateLoader() {
+    loader = document.getElementsByClassName('loader-wrapper');
+    loader[0].style.display = "inherit";
+};
